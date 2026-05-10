@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../i18n/I18nContext";
 import { Button } from "./ui/button";
-import { LogOut, PenSquare, User as UserIcon } from "lucide-react";
+import { LogOut, PenSquare, User as UserIcon, Languages } from "lucide-react";
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
 
   const onLogout = async () => {
@@ -33,17 +35,31 @@ export default function Header() {
             className="hidden sm:inline text-[11px] tracking-[0.25em] uppercase"
             style={{ color: "var(--evenda-muted)" }}
           >
-            Tshivenda Heritage
+            {t("site_subtitle")}
           </span>
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={toggle}
+            title={t("language")}
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] px-3 py-2 rounded-full border transition-colors"
+            style={{
+              borderColor: "var(--evenda-border)",
+              color: "var(--evenda-text-2)",
+            }}
+            data-testid="lang-toggle"
+          >
+            <Languages className="w-3.5 h-3.5" />
+            {lang === "vh" ? "VEN" : "EN"}
+          </button>
+
           <Link
             to="/search"
             className="hidden sm:inline-flex text-sm px-3 py-2 rounded-full transition-colors hover:bg-[var(--evenda-bg-2)]"
             data-testid="nav-browse"
           >
-            Browse
+            {t("browse")}
           </Link>
           {user && user !== false ? (
             <>
@@ -53,7 +69,7 @@ export default function Header() {
                 style={{ backgroundColor: "var(--evenda-primary)" }}
                 data-testid="nav-contribute"
               >
-                <PenSquare className="w-4 h-4 mr-2" /> Contribute
+                <PenSquare className="w-4 h-4 mr-2" /> {t("contribute")}
               </Button>
               <span
                 className="hidden md:inline-flex items-center gap-2 text-sm px-3 py-2 rounded-full"
@@ -62,6 +78,14 @@ export default function Header() {
               >
                 <UserIcon className="w-4 h-4" />
                 {user.name}
+                {user.role === "admin" ? (
+                  <span
+                    className="ml-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.18em]"
+                    style={{ backgroundColor: "var(--evenda-primary)", color: "#fff" }}
+                  >
+                    Admin
+                  </span>
+                ) : null}
               </span>
               <Button
                 variant="ghost"
@@ -79,7 +103,7 @@ export default function Header() {
                 className="text-sm px-3 py-2 rounded-full transition-colors hover:bg-[var(--evenda-bg-2)]"
                 data-testid="nav-login"
               >
-                Sign in
+                {t("sign_in")}
               </Link>
               <Link
                 to="/register"
@@ -87,7 +111,7 @@ export default function Header() {
                 style={{ backgroundColor: "var(--evenda-accent)" }}
                 data-testid="nav-register"
               >
-                Join
+                {t("join")}
               </Link>
             </>
           )}

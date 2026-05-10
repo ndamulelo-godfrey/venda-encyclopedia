@@ -4,15 +4,11 @@ import { Search as SearchIcon } from "lucide-react";
 import Header from "../components/Header";
 import CategoryFilter from "../components/CategoryFilter";
 import EntryCard from "../components/EntryCard";
-import { api } from "../lib/api";
-
-const SORT_OPTIONS = [
-  { value: "alpha", label: "A → Z" },
-  { value: "newest", label: "Newest" },
-  { value: "category", label: "By Category" },
-];
+import { api, categoryLabelKey } from "../lib/api";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function SearchPage() {
+  const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -27,6 +23,12 @@ export default function SearchPage() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const SORT_OPTIONS = [
+    { value: "alpha", label: t("sort_alpha") },
+    { value: "newest", label: t("sort_newest") },
+    { value: "category", label: t("sort_category") },
+  ];
 
   useEffect(() => {
     let mounted = true;
@@ -43,15 +45,14 @@ export default function SearchPage() {
         if (mounted) setEntries(res.data);
       })
       .catch(() => {
-        if (mounted) setError("Couldn't load entries. Please try again.");
+        if (mounted) setError(t("couldnt_load"));
       })
       .finally(() => mounted && setLoading(false));
     return () => {
       mounted = false;
     };
-  }, [submittedQ, category, sort]);
+  }, [submittedQ, category, sort, t]);
 
-  // sync URL
   useEffect(() => {
     const next = new URLSearchParams();
     if (submittedQ) next.set("q", submittedQ);
@@ -66,10 +67,10 @@ export default function SearchPage() {
   };
 
   const heading = useMemo(() => {
-    if (submittedQ) return `Results for “${submittedQ}”`;
-    if (category !== "all") return `Browse: ${category}`;
-    return "Browse the encyclopedia";
-  }, [submittedQ, category]);
+    if (submittedQ) return `${t("results_for")} "${submittedQ}"`;
+    if (category !== "all") return `${t("browse")}: ${t(categoryLabelKey(category))}`;
+    return t("browse_the_encyclopedia");
+  }, [submittedQ, category, t]);
 
   return (
     <div className="min-h-screen evenda-grain" data-testid="search-page">
@@ -80,7 +81,7 @@ export default function SearchPage() {
           className="text-[11px] tracking-[0.3em] uppercase mb-3"
           style={{ color: "var(--evenda-muted)" }}
         >
-          The Evenda Index
+          {t("the_evenda_index")}
         </p>
         <h1
           className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight"
@@ -101,7 +102,7 @@ export default function SearchPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search words, proverbs, plants…"
+              placeholder={t("search_placeholder_short")}
               className="w-full h-14 pl-14 pr-32 text-base outline-none rounded-full bg-transparent"
               data-testid="search-input"
             />
@@ -111,7 +112,7 @@ export default function SearchPage() {
               style={{ backgroundColor: "var(--evenda-primary)" }}
               data-testid="search-submit"
             >
-              Search
+              {t("search_button")}
             </button>
           </div>
         </form>
@@ -124,7 +125,7 @@ export default function SearchPage() {
               className="text-[11px] tracking-[0.22em] uppercase"
               style={{ color: "var(--evenda-muted)" }}
             >
-              Sort
+              {t("sort")}
             </span>
             <div
               className="flex rounded-full border overflow-hidden bg-white"
@@ -156,12 +157,8 @@ export default function SearchPage() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <p
-            className="text-sm"
-            style={{ color: "var(--evenda-muted)" }}
-            data-testid="search-loading"
-          >
-            Loading entries…
+          <p className="text-sm" style={{ color: "var(--evenda-muted)" }} data-testid="search-loading">
+            {t("loading_entries")}
           </p>
         ) : error ? (
           <p className="text-sm text-red-600" data-testid="search-error">
@@ -173,13 +170,9 @@ export default function SearchPage() {
             style={{ borderColor: "var(--evenda-border)" }}
             data-testid="search-empty"
           >
-            <h3 className="font-serif-display text-3xl mb-2">Nothing found yet</h3>
-            <p
-              className="text-sm mb-6"
-              style={{ color: "var(--evenda-text-2)" }}
-            >
-              No entries matched your search. You could be the first to add this
-              word to the encyclopedia.
+            <h3 className="font-serif-display text-3xl mb-2">{t("nothing_found")}</h3>
+            <p className="text-sm mb-6" style={{ color: "var(--evenda-text-2)" }}>
+              {t("nothing_found_body")}
             </p>
             <button
               onClick={() => navigate("/contribute")}
@@ -187,7 +180,7 @@ export default function SearchPage() {
               style={{ backgroundColor: "var(--evenda-primary)" }}
               data-testid="search-empty-contribute"
             >
-              Contribute an entry →
+              {t("contribute_an_entry")}
             </button>
           </div>
         ) : (
@@ -197,7 +190,7 @@ export default function SearchPage() {
               style={{ color: "var(--evenda-muted)" }}
               data-testid="search-count"
             >
-              {entries.length} {entries.length === 1 ? "entry" : "entries"}
+              {entries.length} {entries.length === 1 ? t("entry_singular") : t("entry_plural")}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {entries.map((e, i) => (

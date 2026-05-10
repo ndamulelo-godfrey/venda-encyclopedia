@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import Header from "../components/Header";
-import { CATEGORY_LABELS } from "../lib/api";
+import { CATEGORIES, categoryLabelKey } from "../lib/api";
+import { useI18n } from "../i18n/I18nContext";
 
 const HERO_IMG =
   "https://images.pexels.com/photos/36139778/pexels-photo-36139778.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1600";
 
 export default function Home() {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -22,7 +24,6 @@ export default function Home() {
     <div className="min-h-screen flex flex-col" data-testid="home-page">
       <Header />
 
-      {/* Hero */}
       <section className="relative flex-1 flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-center bg-cover"
@@ -44,23 +45,21 @@ export default function Home() {
             style={{ color: "rgba(253,251,247,0.85)" }}
             data-testid="hero-tagline"
           >
-            A Living Encyclopedia of Tshivenda
+            {t("a_living_encyclopedia")}
           </p>
           <h1
             className="font-serif-display text-white text-5xl sm:text-6xl lg:text-7xl font-light leading-[1.05] tracking-tight evenda-fade-up"
             style={{ animationDelay: "60ms" }}
             data-testid="hero-title"
           >
-            Welcome to <span style={{ color: "#F1B074" }}>Evenda</span>
+            {t("welcome_to")} <span style={{ color: "#F1B074" }}>Evenda</span>
           </h1>
           <p
             className="mt-6 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed evenda-fade-up"
             style={{ color: "rgba(253,251,247,0.85)", animationDelay: "120ms" }}
             data-testid="hero-subtitle"
           >
-            Search words, proverbs, idioms, plants, animals, places, and the
-            living folklore of the Vhavenda people — preserved by the community,
-            for the world.
+            {t("hero_subtitle")}
           </p>
 
           <form
@@ -77,7 +76,7 @@ export default function Home() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search a word, proverb or animal — e.g. 'Ndaa' or 'baobab'"
+                placeholder={t("search_placeholder_hero")}
                 className="w-full h-16 sm:h-20 pl-16 pr-36 text-base sm:text-lg outline-none bg-transparent"
                 style={{ color: "var(--evenda-text)" }}
                 data-testid="hero-search-input"
@@ -88,7 +87,7 @@ export default function Home() {
                 style={{ backgroundColor: "var(--evenda-primary)" }}
                 data-testid="hero-search-submit"
               >
-                Search
+                {t("search_button")}
               </button>
             </div>
           </form>
@@ -98,14 +97,14 @@ export default function Home() {
             style={{ color: "rgba(253,251,247,0.8)", animationDelay: "240ms" }}
             data-testid="hero-categories"
           >
-            {Object.entries(CATEGORY_LABELS).map(([k, label]) => (
+            {CATEGORIES.map((k) => (
               <button
                 key={k}
                 onClick={() => navigate(`/search?category=${k}`)}
                 className="hover:text-white transition-colors"
                 data-testid={`hero-category-${k}`}
               >
-                {label}
+                {t(categoryLabelKey(k))}
               </button>
             ))}
           </div>
@@ -120,8 +119,7 @@ export default function Home() {
         }}
         data-testid="site-footer"
       >
-        © {new Date().getFullYear()} Evenda — Preserving Tshivenda heritage,
-        one entry at a time.
+        © {new Date().getFullYear()} Evenda — {t("footer_tagline")}
       </footer>
     </div>
   );

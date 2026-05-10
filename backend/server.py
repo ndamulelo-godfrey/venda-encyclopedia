@@ -12,10 +12,12 @@ from typing import List, Optional
 
 import bcrypt
 import jwt
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+import requests
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 from seed_data import SEED_ENTRIES
 
@@ -31,6 +33,77 @@ ALLOWED_CATEGORIES = [
     "words", "proverbs", "idioms", "plants", "animals",
     "places", "people", "customs", "folklore",
 ]
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 MB
+STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+APP_STORAGE_NAME = os.environ.get("APP_STORAGE_NAME", "evenda")
+_storage_key: Optional[str] = None
+
+
+def init_storage() -> Optional[str]:
+    global _storage_key
+    if _storage_key:
+        return _storage_key
+    emergent_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not emergent_key:
+        logger.warning("EMERGENT_LLM_KEY missing; uploads disabled.")
+        return None
+    try:
+        resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": emergent_key}, timeout=30)
+        resp.raise_for_status()
+        _storage_key = resp.json()["storage_key"]
+        logger.info("Object storage initialized.")
+        return _storage_key
+    except Exception as e:
+        logger.error("Storage init failed: %s", e)
+        return None
+
+
+def storage_put(path: str, data: bytes, content_type: str) -> dict:
+    key = init_storage()
+    if not key:
+        raise HTTPException(status_code=503, detail="Storage unavailable")
+    resp = requests.put(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key, "Content-Type": content_type},
+        data=data, timeout=120,
+    )
+    if resp.status_code == 403:
+        # token expired — re-init once
+        global _storage_key
+        _storage_key = None
+        key = init_storage()
+        if not key:
+            raise HTTPException(status_code=503, detail="Storage unavailable")
+        resp = requests.put(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key, "Content-Type": content_type},
+            data=data, timeout=120,
+        )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def storage_get(path: str):
+    key = init_storage()
+    if not key:
+        raise HTTPException(status_code=503, detail="Storage unavailable")
+    resp = requests.get(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key}, timeout=60,
+    )
+    if resp.status_code == 403:
+        global _storage_key
+        _storage_key = None
+        key = init_storage()
+        if not key:
+            raise HTTPException(status_code=503, detail="Storage unavailable")
+        resp = requests.get(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key}, timeout=60,
+        )
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
 
 mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
@@ -100,6 +173,12 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(status_code=401, detail="Session expired, please log in again")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+async def require_admin(user: dict = Depends(get_current_user)) -> dict:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
 
 
 # --------------------------------------------------------------------------------------
@@ -267,6 +346,7 @@ async def get_entry(entry_id: str):
 async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_user)):
     if payload.category not in ALLOWED_CATEGORIES:
         raise HTTPException(status_code=400, detail="Invalid category")
+    is_admin = user.get("role") == "admin"
     doc = {
         "id": str(uuid.uuid4()),
         "term": payload.term.strip(),
@@ -276,7 +356,8 @@ async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_us
         "meaning": payload.meaning.strip(),
         "example": (payload.example or "").strip(),
         "region": (payload.region or "").strip(),
-        "image_url": (payload.image_url or "").strip(),
+        # Only admins can attach an image; contributors get an empty placeholder.
+        "image_url": (payload.image_url or "").strip() if is_admin else "",
         "audio_url": (payload.audio_url or "").strip(),
         "contributor_name": user.get("name", "Evenda"),
         "contributor_id": user["id"],
@@ -286,6 +367,97 @@ async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_us
     doc.pop("_id", None)
     doc["created_at"] = datetime.fromisoformat(doc["created_at"])
     return Entry(**{k: v for k, v in doc.items() if k != "contributor_id"})
+
+
+# ---------- Admin-only image management --------------------------------------
+class ImagePatchPayload(BaseModel):
+    image_url: str = Field(min_length=1, max_length=2000)
+
+
+@api_router.post("/admin/upload-image")
+async def admin_upload_image(file: UploadFile = File(...), admin: dict = Depends(require_admin)):
+    content_type = (file.content_type or "").lower()
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPG, PNG, WebP or GIF images are accepted")
+    data = await file.read()
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Image must be under 5 MB")
+    if len(data) == 0:
+        raise HTTPException(status_code=400, detail="Empty file")
+    ext = "jpg"
+    if "." in (file.filename or ""):
+        ext = file.filename.rsplit(".", 1)[-1].lower()
+    if content_type == "image/png":
+        ext = "png"
+    elif content_type == "image/webp":
+        ext = "webp"
+    elif content_type == "image/gif":
+        ext = "gif"
+    elif content_type == "image/jpeg":
+        ext = "jpg"
+    storage_path = f"{APP_STORAGE_NAME}/entry-images/{uuid.uuid4()}.{ext}"
+    result = storage_put(storage_path, data, content_type)
+    final_path = result.get("path", storage_path)
+    backend_base = os.environ.get("FRONTEND_URL", "").rstrip("/")  # used to build absolute URL
+    public_url = f"{backend_base}/api/files/{final_path}" if backend_base else f"/api/files/{final_path}"
+    await db.uploads.insert_one({
+        "id": str(uuid.uuid4()),
+        "storage_path": final_path,
+        "original_filename": file.filename or "image",
+        "content_type": content_type,
+        "size": len(data),
+        "uploaded_by": admin["id"],
+        "is_deleted": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"url": public_url, "path": final_path, "size": len(data), "content_type": content_type}
+
+
+@api_router.patch("/entries/{entry_id}/image", response_model=Entry)
+async def set_entry_image(entry_id: str, payload: ImagePatchPayload, admin: dict = Depends(require_admin)):
+    image_url = payload.image_url.strip()
+    if not image_url:
+        raise HTTPException(status_code=400, detail="image_url cannot be empty")
+    res = await db.entries.find_one_and_update(
+        {"id": entry_id},
+        {"$set": {"image_url": image_url}},
+        return_document=True,
+        projection={"_id": 0},
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    if isinstance(res.get("created_at"), str):
+        res["created_at"] = datetime.fromisoformat(res["created_at"])
+    return Entry(**{k: v for k, v in res.items() if k != "contributor_id"})
+
+
+@api_router.delete("/entries/{entry_id}/image", response_model=Entry)
+async def remove_entry_image(entry_id: str, admin: dict = Depends(require_admin)):
+    res = await db.entries.find_one_and_update(
+        {"id": entry_id},
+        {"$set": {"image_url": ""}},
+        return_document=True,
+        projection={"_id": 0},
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    if isinstance(res.get("created_at"), str):
+        res["created_at"] = datetime.fromisoformat(res["created_at"])
+    return Entry(**{k: v for k, v in res.items() if k != "contributor_id"})
+
+
+@api_router.get("/files/{path:path}")
+async def get_file(path: str):
+    """Public, read-only proxy to object-storage files."""
+    record = await db.uploads.find_one({"storage_path": path, "is_deleted": False})
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+    data, content_type = storage_get(path)
+    return Response(
+        content=data,
+        media_type=record.get("content_type", content_type),
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @api_router.get("/")
@@ -349,8 +521,10 @@ async def on_startup():
     await db.entries.create_index("id", unique=True)
     await db.entries.create_index("category")
     await db.entries.create_index("term")
+    await db.uploads.create_index("storage_path")
     await seed_admin()
     await seed_entries()
+    init_storage()
 
 
 @app.on_event("shutdown")

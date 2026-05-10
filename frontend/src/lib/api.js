@@ -21,18 +21,6 @@ export function formatApiError(detail) {
   return String(detail);
 }
 
-export const CATEGORY_LABELS = {
-  words: "Words",
-  proverbs: "Proverbs",
-  idioms: "Idioms",
-  plants: "Plants",
-  animals: "Animals",
-  places: "Places",
-  people: "People",
-  customs: "Customs",
-  folklore: "Folklore",
-};
-
 export const CATEGORY_COLORS = {
   words: "#D66D45",
   proverbs: "#2E4A35",
@@ -45,4 +33,11 @@ export const CATEGORY_COLORS = {
   folklore: "#503D63",
 };
 
-export const CATEGORIES = Object.keys(CATEGORY_LABELS);
+export const CATEGORIES = [
+  "words", "proverbs", "idioms", "plants", "animals",
+  "places", "people", "customs", "folklore",
+];
+
+// Translation key for a category, looked up via t() in components
+export const categoryLabelKey = (c) =>
+  c === "all" ? "category_all" : `category_${c}`;

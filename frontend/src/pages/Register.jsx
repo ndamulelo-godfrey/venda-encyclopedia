@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function Register() {
   const { register } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,23 +32,17 @@ export default function Register() {
     <div className="min-h-screen evenda-grain" data-testid="register-page">
       <Header />
       <div className="max-w-md mx-auto px-4 sm:px-6 pt-16 pb-24">
-        <p
-          className="text-[11px] tracking-[0.3em] uppercase mb-3"
-          style={{ color: "var(--evenda-muted)" }}
-        >
-          Join the keepers
+        <p className="text-[11px] tracking-[0.3em] uppercase mb-3" style={{ color: "var(--evenda-muted)" }}>
+          {t("join_the_keepers")}
         </p>
         <h1 className="font-serif-display text-4xl sm:text-5xl font-light tracking-tight mb-8" data-testid="register-heading">
-          Create your Evenda account
+          {t("create_your_account")}
         </h1>
 
         <form onSubmit={submit} className="space-y-5" data-testid="register-form">
           <label className="block">
-            <span
-              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
-              style={{ color: "var(--evenda-muted)" }}
-            >
-              Display name
+            <span className="block text-[11px] tracking-[0.22em] uppercase mb-2" style={{ color: "var(--evenda-muted)" }}>
+              {t("display_name")}
             </span>
             <input
               required
@@ -58,11 +54,8 @@ export default function Register() {
             />
           </label>
           <label className="block">
-            <span
-              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
-              style={{ color: "var(--evenda-muted)" }}
-            >
-              Email
+            <span className="block text-[11px] tracking-[0.22em] uppercase mb-2" style={{ color: "var(--evenda-muted)" }}>
+              {t("email")}
             </span>
             <input
               type="email"
@@ -75,11 +68,8 @@ export default function Register() {
             />
           </label>
           <label className="block">
-            <span
-              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
-              style={{ color: "var(--evenda-muted)" }}
-            >
-              Password
+            <span className="block text-[11px] tracking-[0.22em] uppercase mb-2" style={{ color: "var(--evenda-muted)" }}>
+              {t("password")}
             </span>
             <input
               type="password"
@@ -94,9 +84,7 @@ export default function Register() {
           </label>
 
           {error ? (
-            <p className="text-sm text-red-600" data-testid="register-error">
-              {error}
-            </p>
+            <p className="text-sm text-red-600" data-testid="register-error">{error}</p>
           ) : null}
 
           <button
@@ -106,21 +94,13 @@ export default function Register() {
             style={{ backgroundColor: "var(--evenda-primary)" }}
             data-testid="register-submit"
           >
-            {loading ? "Creating account…" : "Create account"}
+            {loading ? t("creating_account") : t("create_account")}
           </button>
 
-          <p
-            className="text-sm text-center pt-3"
-            style={{ color: "var(--evenda-text-2)" }}
-          >
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="underline"
-              style={{ color: "var(--evenda-primary)" }}
-              data-testid="register-go-login"
-            >
-              Sign in
+          <p className="text-sm text-center pt-3" style={{ color: "var(--evenda-text-2)" }}>
+            {t("already_have_account")}{" "}
+            <Link to="/login" className="underline" style={{ color: "var(--evenda-primary)" }} data-testid="register-go-login">
+              {t("sign_in")}
             </Link>
           </p>
         </form>

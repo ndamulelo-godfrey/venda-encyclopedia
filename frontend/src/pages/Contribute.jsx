@@ -2,26 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
-import { api, formatApiError, CATEGORIES, CATEGORY_LABELS } from "../lib/api";
-
-const FIELDS = [
-  { key: "term", label: "Tshivenda Term", placeholder: "e.g. Muvhuyu", required: true },
-  { key: "translation", label: "English Translation", placeholder: "e.g. Baobab tree", required: true },
-  { key: "pronunciation", label: "Pronunciation", placeholder: "e.g. moo-vhoo-yoo" },
-  { key: "region", label: "Region / Dialect", placeholder: "e.g. Vhembe" },
-  { key: "image_url", label: "Image URL (optional)", placeholder: "https://…" },
-  { key: "audio_url", label: "Audio Pronunciation URL (optional)", placeholder: "https://…/word.mp3" },
-];
+import { useI18n } from "../i18n/I18nContext";
+import { api, formatApiError, CATEGORIES, categoryLabelKey } from "../lib/api";
+import { Info } from "lucide-react";
 
 export default function Contribute() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     term: "",
     translation: "",
     pronunciation: "",
     region: "",
-    image_url: "",
     audio_url: "",
     category: "words",
     meaning: "",
@@ -38,10 +31,11 @@ export default function Contribute() {
           className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center"
           data-testid="contribute-auth-gate"
         >
-          <h1 className="font-serif-display text-4xl mb-3">Sign in to contribute</h1>
+          <h1 className="font-serif-display text-4xl mb-3">
+            {t("sign_in_to_contribute")}
+          </h1>
           <p className="text-sm mb-8" style={{ color: "var(--evenda-text-2)" }}>
-            Evenda is community-built. Create a free account to add words,
-            proverbs and stories to the archive.
+            {t("sign_in_to_contribute_body")}
           </p>
           <div className="flex justify-center gap-3">
             <button
@@ -50,7 +44,7 @@ export default function Contribute() {
               style={{ backgroundColor: "var(--evenda-primary)" }}
               data-testid="contribute-go-register"
             >
-              Create account
+              {t("create_account")}
             </button>
             <button
               onClick={() => navigate("/login")}
@@ -58,7 +52,7 @@ export default function Contribute() {
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="contribute-go-login"
             >
-              Sign in
+              {t("sign_in")}
             </button>
           </div>
         </div>
@@ -74,11 +68,19 @@ export default function Contribute() {
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-sm"
           style={{ color: "var(--evenda-muted)" }}
         >
-          Checking your session…
+          {t("checking_session")}
         </p>
       </div>
     );
   }
+
+  const FIELDS = [
+    { key: "term", label: t("field_term"), placeholder: "Muvhuyu", required: true },
+    { key: "translation", label: t("field_translation"), placeholder: "Baobab tree", required: true },
+    { key: "pronunciation", label: t("field_pronunciation"), placeholder: "moo-vhoo-yoo" },
+    { key: "region", label: t("field_region"), placeholder: "Vhembe" },
+    { key: "audio_url", label: t("field_audio_url"), placeholder: "https://…/word.mp3" },
+  ];
 
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -105,22 +107,26 @@ export default function Contribute() {
           className="text-[11px] tracking-[0.3em] uppercase mb-3"
           style={{ color: "var(--evenda-muted)" }}
         >
-          Add to the Evenda archive
+          {t("add_to_archive")}
         </p>
         <h1
           className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight mb-3"
           data-testid="contribute-heading"
         >
-          Contribute an entry
+          {t("contribute_an_entry_title")}
         </h1>
-        <p
-          className="text-base mb-12 max-w-2xl"
-          style={{ color: "var(--evenda-text-2)" }}
-        >
-          Share a word, proverb, plant, animal or piece of folklore. Fill the
-          template below — every contribution helps preserve Tshivenda for the
-          generations to come.
+        <p className="text-base mb-10 max-w-2xl" style={{ color: "var(--evenda-text-2)" }}>
+          {t("contribute_intro")}
         </p>
+
+        <div
+          className="flex items-start gap-3 p-4 rounded-xl mb-10 text-sm"
+          style={{ backgroundColor: "var(--evenda-bg-2)", color: "var(--evenda-text-2)" }}
+          data-testid="contribute-image-note"
+        >
+          <Info className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "var(--evenda-primary)" }} />
+          <span>{t("image_admin_only_note")}</span>
+        </div>
 
         <form onSubmit={submit} className="space-y-7" data-testid="contribute-form">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -150,7 +156,7 @@ export default function Contribute() {
               className="block text-[11px] tracking-[0.22em] uppercase mb-2"
               style={{ color: "var(--evenda-muted)" }}
             >
-              Category *
+              {t("field_category")} *
             </span>
             <select
               value={form.category}
@@ -161,7 +167,7 @@ export default function Contribute() {
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {CATEGORY_LABELS[c]}
+                  {t(categoryLabelKey(c))}
                 </option>
               ))}
             </select>
@@ -172,14 +178,13 @@ export default function Contribute() {
               className="block text-[11px] tracking-[0.22em] uppercase mb-2"
               style={{ color: "var(--evenda-muted)" }}
             >
-              Meaning / Description *
+              {t("field_meaning")} *
             </span>
             <textarea
               required
               value={form.meaning}
               onChange={(e) => update("meaning", e.target.value)}
               rows={5}
-              placeholder="Explain the meaning, cultural context and significance…"
               className="w-full p-4 rounded-lg border bg-white text-base outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="contribute-input-meaning"
@@ -191,13 +196,12 @@ export default function Contribute() {
               className="block text-[11px] tracking-[0.22em] uppercase mb-2"
               style={{ color: "var(--evenda-muted)" }}
             >
-              Example in a Sentence (optional)
+              {t("field_example")}
             </span>
             <textarea
               value={form.example}
               onChange={(e) => update("example", e.target.value)}
               rows={3}
-              placeholder="Show how it's used naturally — Tshivenda or English."
               className="w-full p-4 rounded-lg border bg-white text-base outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="contribute-input-example"
@@ -218,7 +222,7 @@ export default function Contribute() {
               style={{ backgroundColor: "var(--evenda-primary)" }}
               data-testid="contribute-submit"
             >
-              {submitting ? "Saving…" : "Publish entry"}
+              {submitting ? t("saving") : t("publish_entry")}
             </button>
             <button
               type="button"
@@ -227,7 +231,7 @@ export default function Contribute() {
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="contribute-cancel"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         </form>

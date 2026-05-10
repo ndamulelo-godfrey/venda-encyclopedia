@@ -1,13 +1,14 @@
-import { CATEGORIES, CATEGORY_LABELS, CATEGORY_COLORS } from "../lib/api";
+import { CATEGORIES, CATEGORY_COLORS, categoryLabelKey } from "../lib/api";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function CategoryFilter({ value, onChange }) {
+  const { t } = useI18n();
   const all = ["all", ...CATEGORIES];
   return (
     <div className="flex flex-wrap gap-2" data-testid="category-filter">
       {all.map((c) => {
         const active = value === c;
         const color = c === "all" ? "#2B2927" : CATEGORY_COLORS[c];
-        const label = c === "all" ? "All" : CATEGORY_LABELS[c];
         return (
           <button
             key={c}
@@ -22,7 +23,7 @@ export default function CategoryFilter({ value, onChange }) {
               fontWeight: active ? 600 : 500,
             }}
           >
-            {label}
+            {t(categoryLabelKey(c))}
           </button>
         );
       })}

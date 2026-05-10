@@ -192,3 +192,142 @@ class TestEntryCreate:
             "term": "x", "translation": "x", "category": "bogus", "meaning": "x"
         })
         assert r.status_code in (400, 422)
+
+
+# ---------------- Admin image management ----------------
+def _png_bytes():
+    # 1x1 transparent PNG
+    return bytes.fromhex(
+        "89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C489"
+        "0000000A49444154789C6300010000000500010D0A2DB40000000049454E44AE426082"
+    )
+
+
+@pytest.fixture(scope="session")
+def contributor_session():
+    s = requests.Session()
+    s.headers.update({"Content-Type": "application/json"})
+    email = f"contrib_{uuid.uuid4().hex[:8]}@evenda.org"
+    r = s.post(f"{API}/auth/register", json={"email": email, "password": "Pass@12345", "name": "Contrib"})
+    assert r.status_code == 200, r.text
+    return s
+
+
+class TestAdminImage:
+    def test_upload_unauth_401(self):
+        s = requests.Session()
+        r = s.post(f"{API}/admin/upload-image", files={"file": ("a.png", _png_bytes(), "image/png")})
+        assert r.status_code == 401
+
+    def test_upload_non_admin_403(self, contributor_session):
+        # use multipart so don't override content-type
+        s = requests.Session()
+        s.cookies.update(contributor_session.cookies)
+        r = s.post(f"{API}/admin/upload-image", files={"file": ("a.png", _png_bytes(), "image/png")})
+        assert r.status_code == 403
+
+    def test_upload_bad_content_type_400(self, admin_session):
+        s = requests.Session()
+        s.cookies.update(admin_session.cookies)
+        r = s.post(f"{API}/admin/upload-image", files={"file": ("a.txt", b"hello", "text/plain")})
+        assert r.status_code == 400
+
+    def test_admin_upload_png_success(self, admin_session):
+        s = requests.Session()
+        s.cookies.update(admin_session.cookies)
+        r = s.post(f"{API}/admin/upload-image", files={"file": ("a.png", _png_bytes(), "image/png")})
+        assert r.status_code == 200, r.text
+        data = r.json()
+        assert "url" in data and "path" in data
+        assert data["content_type"] == "image/png"
+        assert data["size"] > 0
+        # GET /api/files/{path}
+        path = data["path"]
+        r2 = requests.get(f"{API}/files/{path}")
+        assert r2.status_code == 200
+        assert r2.headers.get("Content-Type", "").startswith("image/")
+        assert len(r2.content) > 0
+        # unknown path → 404
+        r3 = requests.get(f"{API}/files/evenda/entry-images/{uuid.uuid4()}.png")
+        assert r3.status_code == 404
+
+    def _get_entry_id(self, session):
+        r = session.get(f"{API}/entries")
+        return r.json()[0]["id"]
+
+    def test_patch_image_unauth_401(self, session):
+        eid = self._get_entry_id(session)
+        s = requests.Session()
+        s.headers.update({"Content-Type": "application/json"})
+        r = s.patch(f"{API}/entries/{eid}/image", json={"image_url": "https://x.com/a.png"})
+        assert r.status_code == 401
+
+    def test_patch_image_non_admin_403(self, session, contributor_session):
+        eid = self._get_entry_id(session)
+        r = contributor_session.patch(f"{API}/entries/{eid}/image", json={"image_url": "https://x.com/a.png"})
+        assert r.status_code == 403
+
+    def test_patch_image_admin_success(self, session, admin_session):
+        eid = self._get_entry_id(session)
+        url = "https://images.unsplash.com/photo-test.jpg"
+        r = admin_session.patch(f"{API}/entries/{eid}/image", json={"image_url": url})
+        assert r.status_code == 200, r.text
+        assert r.json()["image_url"] == url
+        # GET verifies persistence
+        r2 = session.get(f"{API}/entries/{eid}")
+        assert r2.json()["image_url"] == url
+
+    def test_patch_empty_image_url_400(self, session, admin_session):
+        eid = self._get_entry_id(session)
+        r = admin_session.patch(f"{API}/entries/{eid}/image", json={"image_url": ""})
+        # min_length=1 → 422 from pydantic
+        assert r.status_code in (400, 422)
+
+    def test_patch_unknown_entry_404(self, admin_session):
+        r = admin_session.patch(f"{API}/entries/{uuid.uuid4()}/image", json={"image_url": "https://x.com/a.png"})
+        assert r.status_code == 404
+
+    def test_delete_image_unauth_401(self, session):
+        eid = self._get_entry_id(session)
+        s = requests.Session()
+        r = s.delete(f"{API}/entries/{eid}/image")
+        assert r.status_code == 401
+
+    def test_delete_image_non_admin_403(self, session, contributor_session):
+        eid = self._get_entry_id(session)
+        r = contributor_session.delete(f"{API}/entries/{eid}/image")
+        assert r.status_code == 403
+
+    def test_delete_image_admin_clears(self, session, admin_session):
+        eid = self._get_entry_id(session)
+        # set then clear
+        admin_session.patch(f"{API}/entries/{eid}/image", json={"image_url": "https://x.com/a.png"})
+        r = admin_session.delete(f"{API}/entries/{eid}/image")
+        assert r.status_code == 200
+        assert r.json()["image_url"] == ""
+        r2 = session.get(f"{API}/entries/{eid}")
+        assert r2.json()["image_url"] == ""
+
+    def test_contributor_post_strips_image_url(self, contributor_session):
+        payload = {
+            "term": f"TEST_strip_{uuid.uuid4().hex[:6]}",
+            "translation": "stripped",
+            "category": "words",
+            "meaning": "Should strip image",
+            "image_url": "https://evil.com/should-be-stripped.png",
+        }
+        r = contributor_session.post(f"{API}/entries", json=payload)
+        assert r.status_code == 201, r.text
+        assert r.json()["image_url"] == ""
+
+    def test_admin_post_keeps_image_url(self, admin_session):
+        payload = {
+            "term": f"TEST_admin_img_{uuid.uuid4().hex[:6]}",
+            "translation": "kept",
+            "category": "words",
+            "meaning": "Should keep image",
+            "image_url": "https://images.unsplash.com/admin.jpg",
+        }
+        r = admin_session.post(f"{API}/entries", json=payload)
+        assert r.status_code == 201
+        assert r.json()["image_url"] == "https://images.unsplash.com/admin.jpg"

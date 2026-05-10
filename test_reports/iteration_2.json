@@ -1,0 +1,49 @@
+{
+  "summary": "Iteration 2 — i18n + admin image management. Backend: 32/32 pytest cases pass (added 14 new for upload/patch/delete image, file proxy, and admin-only image_url stripping on POST /entries). Frontend: all 9 critical flows pass — default Tshivenda UI confirmed (Ni a tanganedzwa kha / Lavhelesa Bugu ya Ndivho), lang-toggle switches to English & persists in localStorage('evenda.lang') across reload, admin sees AdminImageManager on entry detail and can save image via Paste-URL (success indicator + Remove button appear), non-admin user does NOT see the panel, /contribute has no image_url field and shows the image_admin_only_note, and EntryCards correctly render the image-at-top variant when image_url is set (3 cards on /search currently have image-at-top with category badge overlay).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PATCH /api/entries/{id}/image", "issue": "Empty image_url returns 422 (pydantic min_length=1) instead of the documented 400. Functionally correct (request rejected) but spec said 400. Test accepts either."},
+      {"endpoint": "POST /api/admin/upload-image", "issue": "Real Emergent object storage is hit on every test run — uploads succeed but persist forever (no cleanup). Consider a TTL or cleanup endpoint."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Header", "issues": ["lang-toggle button is hidden on screens narrower than `sm` (uses hidden sm:inline-flex). Mobile users have no way to switch language. Recommend showing it (or a compact icon-only variant) at all breakpoints."]},
+      {"screen": "Global console", "issues": ["Same noisy 401 from GET /api/auth/me for unauthenticated visitors as iteration 1 — unchanged."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional) Show [data-testid='lang-toggle'] on mobile widths; currently hidden < sm breakpoint.",
+    "(Optional) Return 400 (not 422) for empty image_url to match documented contract — drop pydantic min_length and validate manually.",
+    "(Carry-over) Suppress noisy /api/auth/me 401 console error for unauthenticated visitors.",
+    "(Carry-over) Add cleanup mechanism for TEST_-prefixed entries and uploaded images created by automated tests."
+  ],
+  "critical_code_review_comments": [
+    "AdminImageManager hard-codes 'Please choose a file first.' and 'Paste an image URL first.' in English — should be added to translations.js and localised via t().",
+    "storage_get / storage_put: token re-init logic on 403 is correct but global mutable `_storage_key` is not async-safe; under concurrent requests two reqs may both reset and re-init. Acceptable for now (low traffic) but consider an asyncio.Lock.",
+    "POST /api/admin/upload-image: public_url is built using FRONTEND_URL env. If FRONTEND_URL is unset, returns relative '/api/files/...' which works on the same host but breaks if frontend ever uses a different origin. Already protected by .env; document.",
+    "GET /api/files/{path}: streams the entire file via Response(content=data) — fine for ≤5 MB but not chunked. For large media migrate to StreamingResponse.",
+    "image_url field in EntryCreate has no URL validation (pydantic HttpUrl available). Any string is accepted for admins. Consider validating only when non-empty.",
+    "AdminImageManager error display uses formatApiError(...) but falls back to err.message which may be raw axios message; acceptable.",
+    "server.py is now 528 lines — getting close to the 700 split threshold; consider routers/auth.py, routers/entries.py, routers/admin_images.py.",
+    "DELETE /api/entries/{id}/image: returns the entry doc but admin who deletes from a non-existing entry gets 404 (good). Consider returning 204 No Content for consistency with REST conventions.",
+    "EntryCard image is rendered with no onError fallback — broken external URLs will show a broken-image icon. Add an onError handler that hides the image and falls back to the no-image layout."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (32/32)", "frontend": "100% (11/11 checks)"},
+  "test_credentials": "admin@evenda.org / Admin@Evenda123 — verified working. Contributor users created on the fly via /api/auth/register (TEST_/contrib_ prefix).",
+  "seed_data_creation": "Backend tests created several TEST_-prefixed entries via POST /api/entries (admin & contributor) and 1 image upload to Emergent object storage. Admin patched an existing seed entry's image_url temporarily (then cleared in delete test).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run `cd /app/backend && pytest tests/backend_test.py -v` for full backend regression (32 tests). Frontend testids now include: lang-toggle (header), admin-image-manager + admin-image-mode-upload/url + admin-image-file + admin-image-url-input + admin-image-url-submit + admin-image-upload-submit + admin-image-remove + admin-image-success + admin-image-error (entry detail, admin only), entry-card-image-{id} + entry-card-category-{id} (cards). Default UI lang = 'vh'; toggle persists in localStorage('evenda.lang'). Several seed entries already have image_url populated (3 visible on /search with image-at-top layout).",
+  "rca of the issue": "N/A — no critical issues."
+}

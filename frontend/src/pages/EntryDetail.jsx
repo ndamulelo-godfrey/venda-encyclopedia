@@ -2,26 +2,32 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Volume2 } from "lucide-react";
 import Header from "../components/Header";
-import { api, CATEGORY_COLORS, CATEGORY_LABELS } from "../lib/api";
+import AdminImageManager from "../components/AdminImageManager";
+import { api, CATEGORY_COLORS, categoryLabelKey } from "../lib/api";
+import { useI18n } from "../i18n/I18nContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function EntryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useI18n();
+  const { user } = useAuth();
   const [entry, setEntry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     api
       .get(`/entries/${id}`)
       .then((res) => mounted && setEntry(res.data))
-      .catch(() => mounted && setError("Entry not found."))
+      .catch(() => mounted && setError(t("entry_not_found")))
       .finally(() => mounted && setLoading(false));
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [id, t]);
 
   if (loading) {
     return (
@@ -32,7 +38,7 @@ export default function EntryDetail() {
           style={{ color: "var(--evenda-muted)" }}
           data-testid="entry-loading"
         >
-          Loading entry…
+          {t("loading_entries")}
         </p>
       </div>
     );
@@ -42,9 +48,9 @@ export default function EntryDetail() {
       <div className="min-h-screen">
         <Header />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" data-testid="entry-not-found">
-          <h1 className="font-serif-display text-4xl">Entry not found</h1>
+          <h1 className="font-serif-display text-4xl">{t("entry_not_found")}</h1>
           <p className="mt-3 text-sm" style={{ color: "var(--evenda-text-2)" }}>
-            We couldn't locate that entry. It may have been removed or the link is incorrect.
+            {t("entry_not_found_body")}
           </p>
           <button
             onClick={() => navigate("/search")}
@@ -52,7 +58,7 @@ export default function EntryDetail() {
             style={{ backgroundColor: "var(--evenda-primary)" }}
             data-testid="back-to-browse"
           >
-            ← Back to browse
+            ← {t("back_to_browse")}
           </button>
         </div>
       </div>
@@ -60,6 +66,7 @@ export default function EntryDetail() {
   }
 
   const color = CATEGORY_COLORS[entry.category] || "#2B2927";
+  const isAdmin = user && user !== false && user.role === "admin";
 
   const playPronunciation = () => {
     if (entry.audio_url) {
@@ -85,7 +92,7 @@ export default function EntryDetail() {
           style={{ color: "var(--evenda-muted)" }}
           data-testid="entry-back-link"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to browse
+          <ArrowLeft className="w-4 h-4 mr-2" /> {t("back_to_browse")}
         </Link>
 
         <div className="flex items-center gap-3 mb-6">
@@ -94,7 +101,7 @@ export default function EntryDetail() {
             style={{ backgroundColor: `${color}1A`, color }}
             data-testid="entry-category-badge"
           >
-            {CATEGORY_LABELS[entry.category] || entry.category}
+            {t(categoryLabelKey(entry.category))}
           </span>
           {entry.region ? (
             <span
@@ -130,7 +137,7 @@ export default function EntryDetail() {
                 backgroundColor: "var(--evenda-bg-2)",
                 color: "var(--evenda-primary)",
               }}
-              aria-label="Play pronunciation"
+              aria-label={t("play_pronunciation")}
               data-testid="entry-play-pronunciation"
             >
               <Volume2 className="w-5 h-5" />
@@ -160,7 +167,7 @@ export default function EntryDetail() {
             className="text-[11px] tracking-[0.3em] uppercase mb-4"
             style={{ color: "var(--evenda-muted)" }}
           >
-            Meaning
+            {t("meaning")}
           </h2>
           <p
             className="font-serif-display text-xl sm:text-2xl leading-relaxed font-light"
@@ -184,16 +191,20 @@ export default function EntryDetail() {
               className="text-[11px] tracking-[0.3em] uppercase mb-3"
               style={{ color: "var(--evenda-muted)" }}
             >
-              In Use
+              {t("in_use")}
             </p>
             <p
               className="font-serif-display text-lg sm:text-xl italic leading-relaxed"
               style={{ color: "var(--evenda-text)" }}
               data-testid="entry-example"
             >
-              “{entry.example}”
+              "{entry.example}"
             </p>
           </section>
+        ) : null}
+
+        {isAdmin ? (
+          <AdminImageManager entry={entry} onUpdated={(e) => setEntry(e)} />
         ) : null}
 
         <footer
@@ -205,7 +216,7 @@ export default function EntryDetail() {
           data-testid="entry-footer"
         >
           <span>
-            Contributed by{" "}
+            {t("contributed_by")}{" "}
             <span style={{ color: "var(--evenda-text-2)" }}>
               {entry.contributor_name || "Evenda"}
             </span>
