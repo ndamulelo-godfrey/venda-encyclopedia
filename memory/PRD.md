@@ -29,6 +29,15 @@ Build a heritage-preservation website for the Tshivenda language and Venda cultu
 - ✅ Browser pronunciation playback via `audio_url` or `speechSynthesis` fallback.
 - ✅ 18/18 backend tests + 9/9 frontend flows passing in testing agent.
 
+## What's Been Implemented (2026-02-10 update — bilingual content + restricted images)
+- ✅ Each entry now carries `meaning_vh` + `example_vh` alongside `meaning` + `example`. Backend models, POST, and PATCH persist all four fields.
+- ✅ Startup migration backfills Tshivenda translations onto the 15 existing seed entries idempotently.
+- ✅ Frontend bilingual display: with VEN selected the entire site (including definitions and examples) shows Tshivenda; toggling EN flips only the meaning/example to English while the term and translation gloss stay as-is.
+- ✅ Pictures are now restricted to **Plants** and **Animals** entries only — the frontend gates both card image rendering and the AdminImageManager via `IMAGE_CATEGORIES`. Other categories never display an image even if `image_url` is set.
+- ✅ Plant/Animal cards with an image render a **horizontal layout** with text on the left and image on the right (stacked on mobile). Cards without an image use the original vertical layout.
+- ✅ Contribute & EntryEditDialog forms now have separate Tshivenda + English fields for both meaning and example.
+- ✅ 37/37 backend tests + 10/10 frontend e2e flows pass.
+
 ## What's Been Implemented (2026-02-10 update — admin moderation + audio recording)
 - ✅ `/admin` Admin Dashboard route — searchable table of all entries with Edit (modal) and Delete (confirm) actions; admin-only with "Admins only" gate for non-admin.
 - ✅ `EntryEditDialog` — full entry-edit modal pre-filled with current values; PATCH `/api/entries/{id}` (admin-only).
