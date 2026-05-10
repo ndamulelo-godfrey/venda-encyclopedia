@@ -64,16 +64,18 @@ export default function AudioRecorder({ value = "", onUploaded }) {
       };
       mr.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const blobType = (mediaRef.current?.mimeType || "audio/webm").split(";")[0];
+        const blob = new Blob(chunksRef.current, { type: blobType });
         const url = URL.createObjectURL(blob);
         setPreviewBlob(blob);
         setPreviewUrl(url);
-        setPreviewName(`recording-${Date.now()}.webm`);
+        const ext = blobType.split("/")[1] || "webm";
+        setPreviewName(`recording-${Date.now()}.${ext}`);
       };
       mr.start();
       setRecording(true);
     } catch (e) {
-      setError("Microphone access was denied. You can upload an audio file instead.");
+      setError(t("audio_mic_denied"));
     }
   };
 
@@ -94,11 +96,11 @@ export default function AudioRecorder({ value = "", onUploaded }) {
     const f = e.target.files?.[0];
     if (!f) return;
     if (!/^audio\//.test(f.type)) {
-      setError("Please choose an audio file (mp3, wav, webm, m4a, ogg).");
+      setError(t("audio_pick_audio"));
       return;
     }
     if (f.size > 10 * 1024 * 1024) {
-      setError("Audio must be under 10 MB.");
+      setError(t("audio_too_large"));
       return;
     }
     const url = URL.createObjectURL(f);

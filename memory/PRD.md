@@ -29,6 +29,15 @@ Build a heritage-preservation website for the Tshivenda language and Venda cultu
 - ✅ Browser pronunciation playback via `audio_url` or `speechSynthesis` fallback.
 - ✅ 18/18 backend tests + 9/9 frontend flows passing in testing agent.
 
+## What's Been Implemented (2026-02-10 update — admin moderation + audio recording)
+- ✅ `/admin` Admin Dashboard route — searchable table of all entries with Edit (modal) and Delete (confirm) actions; admin-only with "Admins only" gate for non-admin.
+- ✅ `EntryEditDialog` — full entry-edit modal pre-filled with current values; PATCH `/api/entries/{id}` (admin-only).
+- ✅ `DELETE /api/entries/{id}` — admin-only delete with confirmation modal.
+- ✅ `AudioRecorder` component using browser MediaRecorder API (webm/opus) plus file-picker fallback (mp3, wav, webm, m4a, ogg). Wired into the Contribute form replacing the old plain audio_url URL input.
+- ✅ `POST /api/upload-audio` — authenticated audio upload (≤10 MB) backed by Emergent object storage; result URL is set as `audio_url` on the entry.
+- ✅ Header shows "Admin Dashboard" link only for admin users; image icon flagged in admin table for entries that already have a picture.
+- ✅ 33/33 backend tests + 8/8 frontend e2e flows pass.
+
 ## What's Been Implemented (2026-02-10 update — i18n + admin images)
 - ✅ Bilingual UI (Tshivenda default + English) with header toggle, persisted in localStorage. Hand-editable translations file at `/app/frontend/src/i18n/translations.js`.
 - ✅ Admin-only image management: `POST /api/admin/upload-image` (multipart, JPG/PNG/WebP/GIF ≤5 MB), `PATCH /api/entries/{id}/image`, `DELETE /api/entries/{id}/image`.

@@ -123,6 +123,10 @@ export const translations = {
     audio_attached: "Audio attached to this entry.",
     audio_unsupported:
       "Your browser doesn't support audio recording. Use 'Choose audio file' instead.",
+    audio_mic_denied:
+      "Microphone access was denied. You can upload an audio file instead.",
+    audio_pick_audio: "Please choose an audio file (mp3, wav, webm, m4a, ogg).",
+    audio_too_large: "Audio must be under 10 MB.",
 
     // Admin dashboard
     admin_dashboard: "Admin Dashboard",
@@ -274,6 +278,11 @@ export const translations = {
     audio_attached: "Mubvumelo wo nambateliswa kha tshiengedzwa.",
     audio_unsupported:
       "Brawuza yanu a i tikedzi u rikhoda. Shumisani 'Khethani fayela'.",
+    audio_mic_denied:
+      "Tshitavhanyiso a tsho tendelwa. Hwalani fayela ya mubvumelo.",
+    audio_pick_audio:
+      "Khethani fayela ya mubvumelo (mp3, wav, webm, m4a, ogg).",
+    audio_too_large: "Mubvumelo u tea u vha fhasi ha 10 MB.",
 
     // Admin dashboard
     admin_dashboard: "Bodo ya Admin",
