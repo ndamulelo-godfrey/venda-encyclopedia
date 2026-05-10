@@ -1,0 +1,129 @@
+{
+  "project_name": "Evenda - Tshivenda Heritage Encyclopedia",
+  "theme": "light",
+  "archetype": "Archetype 1 (Organic & Earthy)",
+  "design_philosophy": "The 'Living Dictionary'. Evenda must feel like a premium cultural artifact, blending the scholarly authority of an encyclopedia with the rich, earthy aesthetics of Venda heritage. We avoid sterile tech-layouts and replace them with editorial elegance, generous whitespace, and subtle nods to traditional Venda beadwork colors (minwenda) applied as functional UI accents.",
+  "colors": {
+    "background": {
+      "main": "#FDFBF7",
+      "secondary": "#F3EFE6",
+      "tertiary": "#EAE5D9"
+    },
+    "text": {
+      "primary": "#2B2927",
+      "secondary": "#5C5853",
+      "muted": "#8A857D",
+      "inverse": "#FFFFFF"
+    },
+    "brand": {
+      "primary": "#D66D45",
+      "primary_hover": "#C25D36",
+      "accent": "#2E4A35"
+    },
+    "category_accents": {
+      "words": "#D66D45",
+      "proverbs": "#2E4A35",
+      "idioms": "#34597F",
+      "plants": "#4E7049",
+      "animals": "#A86237",
+      "places": "#755C48",
+      "people": "#DFA42D",
+      "customs": "#8C4A57",
+      "folklore": "#503D63"
+    },
+    "border": {
+      "default": "#E3DFD5",
+      "focus": "#D66D45"
+    }
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Cormorant Garamond, serif",
+      "body": "Work Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1_hero": "text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight",
+      "h1_entry": "text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight",
+      "h2": "text-3xl sm:text-4xl font-normal",
+      "h3": "text-xl sm:text-2xl font-medium",
+      "body": "text-base sm:text-lg leading-relaxed",
+      "small": "text-sm leading-normal",
+      "overline": "text-xs font-semibold tracking-[0.2em] uppercase"
+    },
+    "usage_rules": {
+      "headings": "Use Cormorant Garamond for all H1, H2, and H3. Never make them bold; use font-light or font-medium for elegance.",
+      "body": "Use Work Sans for readability. Keep line-height generous (leading-relaxed) for dictionary definitions.",
+      "category_tags": "Use Work Sans, uppercase, extra-small, with wide tracking."
+    }
+  },
+  "spacing_and_layout": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "section_padding": "py-16 md:py-24 lg:py-32",
+    "grid_system": {
+      "search_results": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8",
+      "entry_detail": "grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16"
+    },
+    "surface_strategy": "Flat solid surfaces. No heavy shadows. Use 1px delicate borders (border-[#E3DFD5]) to separate content. Cards should have rounded-xl or rounded-2xl corners with minimal padding (p-6 to p-8)."
+  },
+  "components": {
+    "navigation": {
+      "style": "Glassmorphism over hero images, or solid #FDFBF7 when scrolling.",
+      "classes": "sticky top-0 z-50 backdrop-blur-xl bg-[#FDFBF7]/80 border-b border-[#E3DFD5]"
+    },
+    "search_bar": {
+      "style": "Massive, central, and inviting.",
+      "classes": "w-full max-w-3xl mx-auto h-16 md:h-20 text-lg md:text-xl rounded-full border-2 border-[#E3DFD5] bg-white px-8 focus:outline-none focus:border-[#D66D45] focus:ring-4 focus:ring-[#D66D45]/20 transition-all shadow-sm"
+    },
+    "entry_card": {
+      "style": "Editorial 'Bento' card",
+      "classes": "flex flex-col p-6 lg:p-8 bg-white border border-[#E3DFD5] rounded-2xl hover:-translate-y-1 transition-transform duration-300 hover:shadow-lg hover:border-[#D66D45]/30 group cursor-pointer"
+    },
+    "category_badge": {
+      "style": "Subtle pill-shape using Venda beadwork inspired colors but low opacity background.",
+      "classes": "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase"
+    },
+    "buttons": {
+      "primary": "bg-[#D66D45] text-white hover:bg-[#C25D36] rounded-full px-6 py-3 font-medium transition-colors",
+      "secondary": "bg-transparent text-[#2B2927] border border-[#E3DFD5] hover:border-[#2B2927] rounded-full px-6 py-3 font-medium transition-colors",
+      "audio": "flex items-center justify-center w-10 h-10 rounded-full bg-[#F3EFE6] text-[#D66D45] hover:bg-[#D66D45] hover:text-white transition-colors"
+    },
+    "inputs": {
+      "default": "w-full h-12 px-4 rounded-lg border border-[#E3DFD5] bg-white focus:outline-none focus:border-[#D66D45] focus:ring-2 focus:ring-[#D66D45]/20 transition-colors"
+    }
+  },
+  "motion_and_interactions": {
+    "hover_states": "Cards lift slightly (-translate-y-1) and gain a soft shadow. Buttons smoothly shift background colors.",
+    "page_transitions": "Fade-in with a slight upward translation (framer-motion).",
+    "staggered_lists": "Search results should stagger in on load (0.1s delay between cards)."
+  },
+  "media_and_images": {
+    "hero_background": {
+      "url": "https://images.pexels.com/photos/36139778/pexels-photo-36139778.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Serene sunset over a field with majestic baobab trees, representing natural roots and heritage.",
+      "usage": "Use as a large hero background on the homepage, with a dark or gradient overlay (bg-black/40) to ensure the white Evenda typography and search bar pop perfectly."
+    },
+    "culture_placeholder_1": {
+      "url": "https://images.unsplash.com/photo-1717453742679-af9d5d6ed3bd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwyfHx2ZW5kYSUyMHRyYWRpdGlvbmFsJTIwY2xvdGhpbmclMjBiZWFkcyUyMGN1bHR1cmFsJTIwY2VsZWJyYXRpb258ZW58MHx8fHwxNzc4NDM2MDUyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "A woman with a headpiece made of beads.",
+      "usage": "Use this as a placeholder image for 'People', 'Customs', or 'Folklore' entry cards on the search results or entry detail page."
+    },
+    "culture_placeholder_2": {
+      "url": "https://images.unsplash.com/photo-1707954784055-ab5eb57d7c76?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwxfHx2ZW5kYSUyMHRyYWRpdGlvbmFsJTIwY2xvdGhpbmclMjBiZWFkcyUyMGN1bHR1cmFsJTIwY2VsZWJyYXRpb258ZW58MHx8fHwxNzc4NDM2MDUyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "A woman in a yellow skirt dancing, representing Venda culture.",
+      "usage": "Alternative placeholder image for cultural entries."
+    }
+  },
+  "accessibility": {
+    "contrast": "Ensure #2B2927 text meets APCA guidelines against #FDFBF7 background.",
+    "testing_attributes": "Add data-testid to all interactive elements (e.g., data-testid='search-input', data-testid='category-filter-words', data-testid='entry-card-title')."
+  },
+  "instructions_to_main_agent": [
+    "Build the UI focusing on typography and generous spacing.",
+    "The homepage should have a massive, beautiful search input over the Baobab hero image.",
+    "Implement a Category filter bar below the search on the results page using the specific 'category_accents' colors as active states.",
+    "Use Shadcn UI for complex forms (contribute page, login/signup), but style them minimally without default Vercel/Stripe 'card' styles. Use flat borders and rounded-xl containers.",
+    "On the Entry Details page, create a beautiful, editorial typographic hierarchy. Huge Garamond heading, with pronunciation text in JetBrains Mono.",
+    "Use lucide-react for UI icons (volume for audio, search, user, plus for contribute)."
+  ]
+}
