@@ -88,8 +88,10 @@ export const translations = {
     field_region: "Region / Dialect",
     field_audio_url: "Audio Pronunciation URL (optional)",
     field_category: "Category",
-    field_meaning: "Meaning / Description",
-    field_example: "Example in a Sentence (optional)",
+    field_meaning: "Meaning / Description (English)",
+    field_meaning_vh: "Meaning / Description (Tshivenda)",
+    field_example: "Example in a Sentence (English, optional)",
+    field_example_vh: "Example in a Sentence (Tshivenda, optional)",
     publish_entry: "Publish entry",
     saving: "Saving…",
     cancel: "Cancel",
@@ -98,7 +100,7 @@ export const translations = {
       "Evenda is community-built. Create a free account to add words, proverbs and stories to the archive.",
     checking_session: "Checking your session…",
     image_admin_only_note:
-      "Pictures are managed by the Evenda admin only — your entry will be displayed without an image until an admin attaches one.",
+      "Pictures appear only on Plants and Animals entries, and are managed by the Evenda admin only — your entry will be displayed without an image until an admin attaches one.",
 
     // Admin image
     admin_panel: "Admin",
@@ -242,8 +244,10 @@ export const translations = {
     field_region: "Vhupo / Luambo lwapo",
     field_audio_url: "URL ya Mubvumelo wa Audio (a si ya u tea)",
     field_category: "Tshigwada",
-    field_meaning: "Ṱalutshedzo / Maambo",
-    field_example: "Tsumbo kha Mutevhe (a si ya u tea)",
+    field_meaning: "Ṱalutshedzo nga Lungisi (English)",
+    field_meaning_vh: "Ṱalutshedzo nga Tshivenda",
+    field_example: "Tsumbo (English, a si ya u tea)",
+    field_example_vh: "Tsumbo (Tshivenda, a si ya u tea)",
     publish_entry: "Phuphuwedza",
     saving: "Hu khou vhulungiwa…",
     cancel: "Litsha",
@@ -252,7 +256,7 @@ export const translations = {
       "Evenda i fhaṱwa nga tshitshavha. Vumba akhaunthu ya mahala u engedza maipfi, mirero na ngano.",
     checking_session: "Hu khou ṱolisiswa session yau…",
     image_admin_only_note:
-      "Zwifanyiso zwi langwa nga muṅwaha (admin) wa Evenda fhedzi — tshiengedzwa tshanu tshi ḓo sumbedzwa zwi sina tshifanyiso u swika tshi tshi engedzwa nga admin.",
+      "Zwifanyiso zwi sumbedzwa kha zwiengedzwa zwa Zwimela na Phukha fhedzi, nahone zwi langwa nga admin wa Evenda fhedzi — tshiengedzwa tshanu tshi ḓo sumbedzwa zwi sina tshifanyiso u swika tshi tshi engedzwa nga admin.",
 
     // Admin image
     admin_panel: "Admin",

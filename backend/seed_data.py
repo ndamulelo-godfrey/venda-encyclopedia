@@ -1,4 +1,11 @@
-"""Initial Tshivenda heritage entries to seed the Evenda encyclopedia."""
+"""Initial Tshivenda heritage entries to seed the Evenda encyclopedia.
+
+Each entry has both English (`meaning`, `example`) and Tshivenda
+(`meaning_vh`, `example_vh`) versions. Tshivenda translations are an
+honest first-draft by an AI assistant and WILL contain errors. The
+admin (a native speaker) is the source of truth and should refine them
+through the Admin Dashboard.
+"""
 
 SEED_ENTRIES = [
     {
@@ -7,7 +14,9 @@ SEED_ENTRIES = [
         "pronunciation": "n-daah",
         "category": "words",
         "meaning": "A respectful Tshivenda greeting traditionally used by men. The female counterpart is 'Aa'. It conveys deep respect when addressing elders or peers.",
+        "meaning_vh": "Ndumeliso ya Tshivenda ya ṱhonifho i shumiswaho nga vhanna. Ndumeliso ya vhafumakadzi ndi 'Aa'. I sumbedza ṱhonifho khulwane musi hu tshi tendelana na vhalala kana vhathannga.",
         "example": "When a young Venda man meets his elder, he says 'Ndaa, Vho-Khotsi' (Greetings, father).",
+        "example_vh": "Musi muthannga wa Muvenda a tshi tangana na mukalaha, u amba 'Ndaa, Vho-Khotsi'.",
         "region": "Vhembe (general Venda)",
     },
     {
@@ -16,7 +25,9 @@ SEED_ENTRIES = [
         "pronunciation": "ah-ah",
         "category": "words",
         "meaning": "The traditional Tshivenda greeting used by women, paired with a slight bow or curtsy when addressing elders. The masculine equivalent is 'Ndaa'.",
+        "meaning_vh": "Ndumeliso ya tshikale ya Tshivenda i shumiswa nga vhafumakadzi, i tshi tendelana na u kotama ha thoho lu i sa siaho musi hu tshi tendelana na vhalala. Ndumeliso ya vhanna ndi 'Ndaa'.",
         "example": "Mufunzi a tshi swika nḓuni, o ri 'Aa!' (When the teacher arrived at home, she said 'Aa!').",
+        "example_vh": "Mufunzi a tshi swika nḓuni, o ri 'Aa!'.",
         "region": "Vhembe (general Venda)",
     },
     {
@@ -25,7 +36,9 @@ SEED_ENTRIES = [
         "pronunciation": "moo-thoo n-dee moo-thoo nga vha-nweh",
         "category": "proverbs",
         "meaning": "The Tshivenda expression of Ubuntu — our humanity is realised through community. Personhood is shaped by relationships, not isolation.",
+        "meaning_vh": "Mafhungo a Tshivenda a Ubuntu — vhuthu hashu vhu wanwa kha tshitshavha. Muthu u vhumbwa nga vhushaka, hu si nga u dzula muthihi.",
         "example": "Used to remind someone to help a neighbour: 'Muthu ndi muthu nga vhanwe — we rise together.'",
+        "example_vh": "Hu shumiswa u humbudza muthu u thusa wa hawe: 'Muthu ndi muthu nga vhanwe — ri gonya zwiimba.'",
         "region": "Limpopo",
     },
     {
@@ -34,7 +47,9 @@ SEED_ENTRIES = [
         "pronunciation": "tshee-lee-dzee tshee ah foo-moo-dza",
         "category": "proverbs",
         "meaning": "An idiom encouraging patience in conflict. Acting in haste worsens a situation; quiet patience resolves it.",
+        "meaning_vh": "Mafhungo a u kombedzela u konḓelela kha thaidzo. U ita zwa u thanya zwi ita uri zwithu zwi shanduke; konḓelelo i fhumudza zwithu.",
         "example": "After a heated argument, an elder says: 'Tshilidzi tshi a fhumudza — give it time.'",
+        "example_vh": "Nga murahu ha vhuhwananyi, mukalaha u ri: 'Tshilidzi tshi a fhumudza — fhamasieni tshifhinga.'",
         "region": "Vhembe",
     },
     {
@@ -43,7 +58,9 @@ SEED_ENTRIES = [
         "pronunciation": "oo voh-fah moo-too-ka",
         "category": "idioms",
         "meaning": "An idiomatic phrase referring to a woman getting married — symbolising the union and commitment between the families.",
+        "meaning_vh": "Mafhungo a vhugana a sumbedzaho musadzi a tshi malwa — a sumbedza vhuthihi na zwifhinganyi vhukati ha mita yothe.",
         "example": "Vho vhofha mutuka nga Mugivhela. (They tied the knot on Saturday.)",
+        "example_vh": "Vho vhofha mutuka nga Mugivhela.",
         "region": "Vhembe",
     },
     {
@@ -52,7 +69,9 @@ SEED_ENTRIES = [
         "pronunciation": "moo-ree wah moo-vhoo-yoo",
         "category": "plants",
         "meaning": "The iconic baobab tree, sacred to Venda people. Known as the 'tree of life', its fruit is used for food and medicine, and the bark is used for fibre and crafts.",
+        "meaning_vh": "Muri wa muvhuyu, wo khethwaho nga Vhavenda. U dzhiwa sa 'muri wa vhutshilo' — mitshelo i shumiswa sa zwiḽiwa na ḓi, makanda a wo a shumiswa kha mishumo ya u luga thambo na zwithu zwa u nanga.",
         "example": "Muvhuyu u na zwiḽiwa zwa ndeme — 'The baobab has important food.'",
+        "example_vh": "Muvhuyu u na zwiḽiwa zwa ndeme.",
         "region": "Limpopo lowveld, Musina",
     },
     {
@@ -61,7 +80,9 @@ SEED_ENTRIES = [
         "pronunciation": "moo-tsha-toh",
         "category": "plants",
         "meaning": "The marula tree, treasured for its sweet yellow fruit used in brewing traditional beer (mukumbi). Considered sacred and often associated with fertility ceremonies.",
+        "meaning_vh": "Muri wa mutshato, wo khethwaho nga muthelo wo wa madi a tshena u shumiswaho u fhefha halwa ha tshikale (mukumbi). U dzhiwa sa wa khethwa nahone u tendelana na zwiitwa zwa vhubebi.",
         "example": "Mukumbi u itwa nga mitshato. (Marula beer is made from marulas.)",
+        "example_vh": "Mukumbi u itwa nga mitshato.",
         "region": "Vhembe, Mopani",
     },
     {
@@ -70,7 +91,9 @@ SEED_ENTRIES = [
         "pronunciation": "n-doh",
         "category": "animals",
         "meaning": "The elephant, a totem animal (mutupo) for some Venda clans, especially the Vhasenzi. Symbol of strength, wisdom, and royalty.",
+        "meaning_vh": "Ndou, phukha ya mutupo wa mitupo ya vhanwe vha Vhavenda, vhukuma vha Vhasenzi. Tshifanyiso tsha maanḓa, vhuṱali, na vhuhosi.",
         "example": "Vhuhosi ha vhone vhu fanyiswa na ndou. (Their kingship is likened to the elephant.)",
+        "example_vh": "Vhuhosi ha vhone vhu fanyiswa na ndou.",
         "region": "Kruger region, Mapungubwe",
     },
     {
@@ -79,7 +102,9 @@ SEED_ENTRIES = [
         "pronunciation": "tshee-vha-da",
         "category": "animals",
         "meaning": "The lion. In Venda folklore, the lion appears as a fearsome figure of authority and danger, often invoked in warning tales told to children.",
+        "meaning_vh": "Ndau. Kha ngano dza Vhavenda, ndau i wanwa sa tshivhumbeo tsha u ofhisa tsha vhulanguli na khombo, i wanwa kha ngano dza u sevhetsedza vhana.",
         "example": "Tshivhada tshi a fhanyiswa na khosi. (The lion is likened to a king.)",
+        "example_vh": "Tshivhada tshi a fanyiswa na khosi.",
         "region": "Limpopo",
     },
     {
@@ -88,7 +113,9 @@ SEED_ENTRIES = [
         "pronunciation": "toh-hoh-yan-doh",
         "category": "places",
         "meaning": "The administrative capital of the former Venda homeland and a major town in Limpopo, named after the legendary Venda king Thohoyandou ('head of the elephant').",
-        "example": "Ndi a ya Thohoyandou ngomu mara. (I am going to Thohoyandou tomorrow.)",
+        "meaning_vh": "Doroboni ḽa vhuhulwane ha vhulanguli ḽa shango ḽa kale ḽa Venda na doroboni khulwane ya Limpopo, ḽo dzhiwaho nga dzina ḽa khosi ya Vhavenda Thohoyandou ('thoho ya ndou').",
+        "example": "Ndi a ya Thohoyandou ngomu mara.",
+        "example_vh": "Ndi a ya Thohoyandou ngomu mara.",
         "region": "Vhembe District",
     },
     {
@@ -97,7 +124,9 @@ SEED_ENTRIES = [
         "pronunciation": "dza-tah",
         "category": "places",
         "meaning": "The historical stone-walled capital of the Singo dynasty in the 17th century, now an important Venda heritage site near Nzhelele Valley.",
-        "example": "Dzata ndi fhethu ha vhuhosi ha kale. (Dzata is a place of ancient kingship.)",
+        "meaning_vh": "Doroboni ḽa kale ḽa mawe ḽa vhulanguli ha lushaka lwa Singo nga miṅwaha ya vhu-17, zwino ndi fhethu hu fhethu ha ifa ha Vhavenda tsini na Mukomo wa Nzhelele.",
+        "example": "Dzata ndi fhethu ha vhuhosi ha kale.",
+        "example_vh": "Dzata ndi fhethu ha vhuhosi ha kale.",
         "region": "Nzhelele Valley",
     },
     {
@@ -106,7 +135,9 @@ SEED_ENTRIES = [
         "pronunciation": "ko-see toh-hoh-yan-doh",
         "category": "people",
         "meaning": "The legendary 18th-century Venda king who unified the Venda nation. His name 'head of the elephant' signifies wisdom and unmatched authority. He is said to have vanished mysteriously, leaving only his royal drum, Ngoma Lungundu.",
+        "meaning_vh": "Khosi ya zwifhinga zwa 18 zwa tshilimo ye ya bvelela u vhumba lushaka lwa Vhavenda. Dzina ḽawe 'thoho ya ndou' ḽi sumbedza vhuṱali na maanḓa a sa shanduki. Hu pfi o nyamuwa nga maanḓa a sa pfeseseki, a sia ngoma yawe ya vhuhosi, Ngoma Lungundu.",
         "example": "Khosi Thohoyandou o vhumba lushaka lwa Vhavenda. (King Thohoyandou built the Venda nation.)",
+        "example_vh": "Khosi Thohoyandou o vhumba lushaka lwa Vhavenda.",
         "region": "Dzata",
     },
     {
@@ -115,7 +146,9 @@ SEED_ENTRIES = [
         "pronunciation": "dom-ba",
         "category": "customs",
         "meaning": "A traditional pre-marital initiation dance for young Venda women. Dancers form a long chain mimicking a python's movement — a sacred celebration of fertility, womanhood, and community.",
+        "meaning_vh": "Tshikuwo tsha tshikale tsha vhasidzana vha Vhavenda vhane vha tshi malwa. Vhatambisi vha enḓa nga lutevhe lulapfu lu fanaho na nhungu i tshi tshimbila — tshiitwa tsha khethwa tsha vhubebi, ha vhusadzi na ha tshitshavha.",
         "example": "Vhasidzana vha tshi tamba domba ngomu vhuṱambo. (The girls dance the domba during the festival.)",
+        "example_vh": "Vhasidzana vha tshi tamba domba ngomu vhuṱambo.",
         "region": "Vhembe",
     },
     {
@@ -124,7 +157,9 @@ SEED_ENTRIES = [
         "pronunciation": "oo pa-sa",
         "category": "customs",
         "meaning": "A sacred Venda ritual in which elders speak to and honour the ancestors (vhadzimu) using snuff, traditional beer, and prayer — to seek guidance, healing, or blessing.",
+        "meaning_vh": "Tshiitwa tsha khethwa tsha Vhavenda hune vhakalaha vha amba na vhadzimu, vha vha hulisa nga gwambo, halwa ha tshikale, na thabelo — vha tshi humbela vhulanguli, u alafha, kana phaḓo.",
         "example": "Vho-Khotsi vha phasa nga matsheloni. (Father performs the phasa ritual in the morning.)",
+        "example_vh": "Vho-Khotsi vha phasa nga matsheloni.",
         "region": "All Venda areas",
     },
     {
@@ -133,7 +168,9 @@ SEED_ENTRIES = [
         "pronunciation": "n-go-ma loon-goon-doo",
         "category": "folklore",
         "meaning": "The mystical sacred drum of the Venda people, said to have been brought from the north by their ancestors. According to legend, when struck it would thunder so loudly it could destroy enemies. It is the central symbol of Venda spiritual heritage.",
+        "meaning_vh": "Ngoma ya khethwa ya Vhavenda i pfumphwaho khulwane, hu pfi yo ḓa nga vhukovhela nga vhomakhulukuku. Nga ngano, musi i tshi rwiwa, yo vha i tshi pfumpha vhukuma uri i kone u pwasha vhalala. Ndi tshifanyiso tshihulwane tsha ifa ha vhusayivho ha Vhavenda.",
         "example": "Ngoma Lungundu yo vha i tshi pfi nga muvhuso. (Ngoma Lungundu was heard across the kingdom.)",
+        "example_vh": "Ngoma Lungundu yo vha i tshi pfi nga muvhuso.",
         "region": "Mythical / Dzata",
     },
 ]

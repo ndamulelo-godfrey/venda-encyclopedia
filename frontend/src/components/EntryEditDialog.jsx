@@ -31,7 +31,9 @@ export default function EntryEditDialog({ entry, onClose, onSaved }) {
       image_url: entry.image_url || "",
       category: entry.category || "words",
       meaning: entry.meaning || "",
+      meaning_vh: entry.meaning_vh || "",
       example: entry.example || "",
+      example_vh: entry.example_vh || "",
     });
     setError("");
   }, [entry]);
@@ -136,6 +138,23 @@ export default function EntryEditDialog({ entry, onClose, onSaved }) {
               className="block text-[11px] tracking-[0.22em] uppercase mb-2"
               style={{ color: "var(--evenda-muted)" }}
             >
+              {t("field_meaning_vh")}
+            </span>
+            <textarea
+              rows={4}
+              value={form.meaning_vh}
+              onChange={(e) => update("meaning_vh", e.target.value)}
+              className="w-full p-3 rounded-lg border bg-white outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
+              style={{ borderColor: "var(--evenda-border)" }}
+              data-testid="edit-input-meaning-vh"
+            />
+          </label>
+
+          <label className="block">
+            <span
+              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
+              style={{ color: "var(--evenda-muted)" }}
+            >
               {t("field_meaning")}
             </span>
             <textarea
@@ -145,6 +164,23 @@ export default function EntryEditDialog({ entry, onClose, onSaved }) {
               className="w-full p-3 rounded-lg border bg-white outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="edit-input-meaning"
+            />
+          </label>
+
+          <label className="block">
+            <span
+              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
+              style={{ color: "var(--evenda-muted)" }}
+            >
+              {t("field_example_vh")}
+            </span>
+            <textarea
+              rows={3}
+              value={form.example_vh}
+              onChange={(e) => update("example_vh", e.target.value)}
+              className="w-full p-3 rounded-lg border bg-white outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
+              style={{ borderColor: "var(--evenda-border)" }}
+              data-testid="edit-input-example-vh"
             />
           </label>
 

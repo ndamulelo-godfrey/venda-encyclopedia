@@ -19,7 +19,9 @@ export default function Contribute() {
     audio_url: "",
     category: "words",
     meaning: "",
+    meaning_vh: "",
     example: "",
+    example_vh: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -178,6 +180,24 @@ export default function Contribute() {
               className="block text-[11px] tracking-[0.22em] uppercase mb-2"
               style={{ color: "var(--evenda-muted)" }}
             >
+              {t("field_meaning_vh")} *
+            </span>
+            <textarea
+              required
+              value={form.meaning_vh}
+              onChange={(e) => update("meaning_vh", e.target.value)}
+              rows={5}
+              className="w-full p-4 rounded-lg border bg-white text-base outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
+              style={{ borderColor: "var(--evenda-border)" }}
+              data-testid="contribute-input-meaning-vh"
+            />
+          </label>
+
+          <label className="block">
+            <span
+              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
+              style={{ color: "var(--evenda-muted)" }}
+            >
               {t("field_meaning")} *
             </span>
             <textarea
@@ -188,6 +208,23 @@ export default function Contribute() {
               className="w-full p-4 rounded-lg border bg-white text-base outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
               style={{ borderColor: "var(--evenda-border)" }}
               data-testid="contribute-input-meaning"
+            />
+          </label>
+
+          <label className="block">
+            <span
+              className="block text-[11px] tracking-[0.22em] uppercase mb-2"
+              style={{ color: "var(--evenda-muted)" }}
+            >
+              {t("field_example_vh")}
+            </span>
+            <textarea
+              value={form.example_vh}
+              onChange={(e) => update("example_vh", e.target.value)}
+              rows={3}
+              className="w-full p-4 rounded-lg border bg-white text-base outline-none focus:border-[var(--evenda-primary)] leading-relaxed"
+              style={{ borderColor: "var(--evenda-border)" }}
+              data-testid="contribute-input-example-vh"
             />
           </label>
 

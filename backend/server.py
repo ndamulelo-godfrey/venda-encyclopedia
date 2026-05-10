@@ -214,7 +214,9 @@ class EntryCreate(BaseModel):
     pronunciation: Optional[str] = ""
     category: str
     meaning: str = Field(min_length=1, max_length=4000)
+    meaning_vh: Optional[str] = ""
     example: Optional[str] = ""
+    example_vh: Optional[str] = ""
     region: Optional[str] = ""
     image_url: Optional[str] = ""
     audio_url: Optional[str] = ""
@@ -227,7 +229,9 @@ class Entry(BaseModel):
     pronunciation: str = ""
     category: str
     meaning: str
+    meaning_vh: str = ""
     example: str = ""
+    example_vh: str = ""
     region: str = ""
     image_url: str = ""
     audio_url: str = ""
@@ -358,7 +362,9 @@ async def update_entry(entry_id: str, payload: EntryCreate, admin: dict = Depend
         "pronunciation": (payload.pronunciation or "").strip(),
         "category": payload.category,
         "meaning": payload.meaning.strip(),
+        "meaning_vh": (payload.meaning_vh or "").strip(),
         "example": (payload.example or "").strip(),
+        "example_vh": (payload.example_vh or "").strip(),
         "region": (payload.region or "").strip(),
         "audio_url": (payload.audio_url or "").strip(),
     }
@@ -398,7 +404,9 @@ async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_us
         "pronunciation": (payload.pronunciation or "").strip(),
         "category": payload.category,
         "meaning": payload.meaning.strip(),
+        "meaning_vh": (payload.meaning_vh or "").strip(),
         "example": (payload.example or "").strip(),
+        "example_vh": (payload.example_vh or "").strip(),
         "region": (payload.region or "").strip(),
         # Only admins can attach an image; contributors get an empty placeholder.
         "image_url": (payload.image_url or "").strip() if is_admin else "",
@@ -573,29 +581,50 @@ async def seed_admin():
 
 
 async def seed_entries():
+    """Insert seed entries the first time, and back-fill new bilingual fields
+    (meaning_vh, example_vh) for entries previously seeded without them."""
     count = await db.entries.count_documents({})
-    if count > 0:
+    if count == 0:
+        docs = []
+        for e in SEED_ENTRIES:
+            docs.append({
+                "id": str(uuid.uuid4()),
+                "term": e["term"],
+                "translation": e["translation"],
+                "pronunciation": e.get("pronunciation", ""),
+                "category": e["category"],
+                "meaning": e["meaning"],
+                "meaning_vh": e.get("meaning_vh", ""),
+                "example": e.get("example", ""),
+                "example_vh": e.get("example_vh", ""),
+                "region": e.get("region", ""),
+                "image_url": e.get("image_url", ""),
+                "audio_url": e.get("audio_url", ""),
+                "contributor_name": "Evenda",
+                "contributor_id": "system",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+        if docs:
+            await db.entries.insert_many(docs)
+            logger.info("Seeded %d entries", len(docs))
         return
-    docs = []
+
+    # Idempotent migration: backfill bilingual fields onto existing seed entries
+    backfilled = 0
     for e in SEED_ENTRIES:
-        docs.append({
-            "id": str(uuid.uuid4()),
-            "term": e["term"],
-            "translation": e["translation"],
-            "pronunciation": e.get("pronunciation", ""),
-            "category": e["category"],
-            "meaning": e["meaning"],
-            "example": e.get("example", ""),
-            "region": e.get("region", ""),
-            "image_url": e.get("image_url", ""),
-            "audio_url": e.get("audio_url", ""),
-            "contributor_name": "Evenda",
-            "contributor_id": "system",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        })
-    if docs:
-        await db.entries.insert_many(docs)
-        logger.info("Seeded %d entries", len(docs))
+        existing = await db.entries.find_one({"term": e["term"], "contributor_id": "system"})
+        if not existing:
+            continue
+        updates = {}
+        if not existing.get("meaning_vh") and e.get("meaning_vh"):
+            updates["meaning_vh"] = e["meaning_vh"]
+        if not existing.get("example_vh") and e.get("example_vh"):
+            updates["example_vh"] = e["example_vh"]
+        if updates:
+            await db.entries.update_one({"id": existing["id"]}, {"$set": updates})
+            backfilled += 1
+    if backfilled:
+        logger.info("Backfilled bilingual fields on %d seed entries", backfilled)
 
 
 @app.on_event("startup")

@@ -38,6 +38,23 @@ export const CATEGORIES = [
   "places", "people", "customs", "folklore",
 ];
 
+// Categories that may display a picture. Per product spec: only plants & animals.
+export const IMAGE_CATEGORIES = new Set(["plants", "animals"]);
+
 // Translation key for a category, looked up via t() in components
 export const categoryLabelKey = (c) =>
   c === "all" ? "category_all" : `category_${c}`;
+
+/**
+ * Pick the language-appropriate value of a bilingual field.
+ *  - lang === "vh": prefer entry[`${key}_vh`], fall back to entry[key].
+ *  - lang === "en": always entry[key].
+ */
+export function localizedField(entry, key, lang) {
+  if (!entry) return "";
+  if (lang === "vh") {
+    const v = entry[`${key}_vh`];
+    if (v && v.trim()) return v;
+  }
+  return entry[key] || "";
+}

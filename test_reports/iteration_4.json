@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 4 — bilingual content (meaning_vh/example_vh) + picture-restricted-to-plants/animals. Backend: 37/37 pytest pass (added 4 new bilingual tests: seed Muvhuyu has both meanings, seed Aa contains expected English+Tshivenda strings, POST persists meaning_vh+example_vh, PATCH updates them; verified via GET round-trip). Frontend: 10/10 e2e flows pass — words detail has NO entry-image (Aa), default lang=vh shows 'Ndumeliso ya tshikale...', lang-toggle swaps meaning to English while term+translation stay unchanged, plant detail (Muvhuyu) renders entry-image, anonymous users see no admin-image-manager on plants, admin sees admin-image-manager on plants but NOT on words, Contribute form has all 4 bilingual fields, Edit dialog has all 4 bilingual fields. Search/plants-filter screenshot confirmed horizontal cards (text left, image right) for Muvhuyu + Mutshato; vertical text-only card for Ndaa/Aa/etc.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PATCH /api/entries/{id}", "issue": "Still uses EntryCreate (all fields required) instead of an EntryUpdate Optional model — admin must always re-send the full payload. New fields meaning_vh/example_vh follow same pattern, OK for admin form but not true PATCH."},
+      {"endpoint": "GET /api/entries?q=Aa", "issue": "Aa seed entry's English meaning is currently 'Test edit. The traditional Tshivenda greeting used by women.' — a leftover prefix from a previous admin edit during testing. Not a code bug but seed data has been mutated."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Search results — plant cards", "issues": ["Seed image for 'Muri wa Muvhuyu' (Baobab) points to Unsplash photo-1547949003-9792a18a2601 which is a LEATHER BACKPACK, not a baobab tree. Seed image for 'Mutshato' (Marula) points to photo-1557844352-761f2565b576 which is a VEGETABLE MARKET (carrots/broccoli), not a marula tree. These mis-matched images undermine the heritage credibility — please replace with actual baobab/marula photographs."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(HIGH) Replace Unsplash image_url for Muri wa Muvhuyu and Mutshato with photos that actually depict a baobab and a marula tree — current URLs return a backpack and a vegetable market.",
+    "(Optional) Restore Aa entry meaning to 'The traditional Tshivenda greeting used by women...' — remove the leftover 'Test edit.' prefix from earlier admin testing.",
+    "(Carry-over) Switch PATCH /api/entries/{id} to a dedicated EntryUpdate model with Optional fields, or rename to PUT.",
+    "(Carry-over) Cleanup TEST_-prefixed entries (~70 remain in DB) and uploaded blob storage."
+  ],
+  "critical_code_review_comments": [
+    "server.py update_entry: image_url still wrapped in `if payload.image_url is not None` — but EntryCreate defaults it to '' so the branch is always True; either drop the if or make image_url Optional[str]=None in the model (carry-over).",
+    "EntryCard supportsImage logic correctly gates on IMAGE_CATEGORIES + !imgFailed — good. However entries from older categories with stale image_url still pass through to <img> tag at first render before onError fires; consider hiding render entirely if !IMAGE_CATEGORIES.has(category) (already done).",
+    "EntryDetail: showImage gated on supportsImage && entry.image_url — but Tshivhada entry's term is stored as 'Tshivhada' in seed (English translation 'Lion'); the test brief refers to it as 'Tshivada' (one h). Confirmed DB stores 'Tshivhada'. Minor naming inconsistency in spec vs seed.",
+    "Contribute form requires both meaning AND meaning_vh — good for forcing bilingual entries, but users with limited Tshivenda may struggle; consider one required + one optional with clear note.",
+    "server.py is now 665 lines — still under 700-line split threshold but close. Plan to split into routers/ soon.",
+    "Tshivenda translations in seed_data.py are flagged in the file's own docstring as AI first-drafts containing errors; this is honest but should be surfaced in the UI (e.g., a 'community-review-needed' badge) so users don't propagate inaccuracies."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (37/37)", "frontend": "100% (10/10 e2e flows)"},
+  "test_credentials": "admin@evenda.org / Admin@Evenda123 — verified working.",
+  "seed_data_creation": "Tests created and self-cleaned several TEST_bi_*, TEST_patch_*, TEST_del_* entries via authenticated CRUD. No new uploads to object storage in bilingual tests (audio/image upload tests still run, 1 PNG + 1 WAV pushed to Emergent storage as in prior iterations).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run `cd /app/backend && REACT_APP_BACKEND_URL=$(grep REACT_APP_BACKEND_URL /app/frontend/.env | cut -d= -f2) pytest tests/backend_test.py -v` for full regression (37 tests). TestBilingual class is new this iteration. For frontend, key new testids: lang-toggle (header), entry-meaning, entry-image, admin-image-manager, contribute-input-meaning-vh, contribute-input-example-vh, edit-input-meaning-vh, edit-input-example-vh. IMAGE_CATEGORIES = {plants, animals} — gates both card image and admin image manager. Aa entry's meaning has been mutated by earlier admin testing ('Test edit.' prefix) — treat content-string assertions loosely (use substring matching).",
+  "rca of the issue": "No failing tests. Two product-quality concerns surfaced: (a) seed images for Muvhuyu/Mutshato are mismatched stock photos (backpack & vegetables) — pure data issue, fix by updating image_url in DB or seed_data.py; (b) Aa entry English meaning has stale 'Test edit.' prefix from a previous admin test session, not a code bug."
+}

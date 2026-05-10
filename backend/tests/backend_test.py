@@ -367,3 +367,72 @@ class TestAudioUpload:
         r2 = requests.get(f"{API}/files/{data['path']}")
         assert r2.status_code == 200
         assert r2.headers.get("Content-Type", "").startswith("audio/")
+
+
+# ============================================================================
+# NEW (Iteration 4) — Bilingual fields meaning_vh / example_vh
+# ============================================================================
+class TestBilingual:
+    def test_seed_muvhuyu_has_both_meanings(self, session):
+        r = session.get(f"{API}/entries", params={"q": "Muvhuyu"})
+        assert r.status_code == 200
+        rows = r.json()
+        assert any(e["term"] == "Muri wa Muvhuyu" for e in rows)
+        e = next(x for x in rows if x["term"] == "Muri wa Muvhuyu")
+        assert e["meaning"], "English meaning empty"
+        assert e["meaning_vh"], "Tshivenda meaning_vh not backfilled"
+        assert e["meaning"] != e["meaning_vh"]
+        assert "baobab" in e["meaning"].lower()
+
+    def test_seed_aa_has_both_meanings_distinct(self, session):
+        r = session.get(f"{API}/entries", params={"q": "Aa"})
+        rows = r.json()
+        e = next((x for x in rows if x["term"] == "Aa"), None)
+        assert e is not None
+        assert "traditional Tshivenda greeting" in e["meaning"]
+        assert "Ndumeliso ya tshikale" in e["meaning_vh"]
+        assert e["meaning"] != e["meaning_vh"]
+
+    def test_create_persists_bilingual(self, admin_session):
+        payload = {
+            "term": f"TEST_bi_{uuid.uuid4().hex[:6]}",
+            "translation": "biling",
+            "category": "words",
+            "meaning": "English meaning here",
+            "meaning_vh": "Tshivenda meaning here",
+            "example": "English example",
+            "example_vh": "Tshivenda example",
+        }
+        r = admin_session.post(f"{API}/entries", json=payload)
+        assert r.status_code == 201, r.text
+        body = r.json()
+        eid = body["id"]
+        assert body["meaning_vh"] == "Tshivenda meaning here"
+        assert body["example_vh"] == "Tshivenda example"
+        # GET to verify persistence
+        g = admin_session.get(f"{API}/entries/{eid}").json()
+        assert g["meaning_vh"] == "Tshivenda meaning here"
+        assert g["example_vh"] == "Tshivenda example"
+        admin_session.delete(f"{API}/entries/{eid}")
+
+    def test_patch_updates_bilingual(self, admin_session):
+        r = admin_session.post(f"{API}/entries", json={
+            "term": f"TEST_bi_{uuid.uuid4().hex[:6]}", "translation": "t",
+            "category": "words", "meaning": "m", "meaning_vh": "mv",
+            "example": "e", "example_vh": "ev",
+        })
+        eid = r.json()["id"]
+        upd = {
+            "term": "patched", "translation": "patched", "category": "words",
+            "meaning": "new EN meaning", "meaning_vh": "new VH meaning",
+            "example": "new EN ex", "example_vh": "new VH ex",
+        }
+        r2 = admin_session.patch(f"{API}/entries/{eid}", json=upd)
+        assert r2.status_code == 200, r2.text
+        body = r2.json()
+        assert body["meaning_vh"] == "new VH meaning"
+        assert body["example_vh"] == "new VH ex"
+        g = admin_session.get(f"{API}/entries/{eid}").json()
+        assert g["meaning_vh"] == "new VH meaning"
+        assert g["example_vh"] == "new VH ex"
+        admin_session.delete(f"{API}/entries/{eid}")

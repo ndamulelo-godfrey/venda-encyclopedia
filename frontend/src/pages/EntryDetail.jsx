@@ -3,14 +3,14 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Volume2 } from "lucide-react";
 import Header from "../components/Header";
 import AdminImageManager from "../components/AdminImageManager";
-import { api, CATEGORY_COLORS, categoryLabelKey } from "../lib/api";
+import { api, CATEGORY_COLORS, IMAGE_CATEGORIES, categoryLabelKey, localizedField } from "../lib/api";
 import { useI18n } from "../i18n/I18nContext";
 import { useAuth } from "../context/AuthContext";
 
 export default function EntryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const [entry, setEntry] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +67,10 @@ export default function EntryDetail() {
 
   const color = CATEGORY_COLORS[entry.category] || "#2B2927";
   const isAdmin = user && user !== false && user.role === "admin";
+  const supportsImage = IMAGE_CATEGORIES.has(entry.category);
+  const showImage = supportsImage && !!entry.image_url;
+  const meaning = localizedField(entry, "meaning", lang);
+  const example = localizedField(entry, "example", lang);
 
   const playPronunciation = () => {
     if (entry.audio_url) {
@@ -152,7 +156,7 @@ export default function EntryDetail() {
           </div>
         ) : null}
 
-        {entry.image_url ? (
+        {showImage ? (
           <img
             src={entry.image_url}
             alt={entry.term}
@@ -174,11 +178,11 @@ export default function EntryDetail() {
             style={{ color: "var(--evenda-text)" }}
             data-testid="entry-meaning"
           >
-            {entry.meaning}
+            {meaning}
           </p>
         </section>
 
-        {entry.example ? (
+        {example ? (
           <section
             className="mb-10 p-6 sm:p-8 rounded-2xl border-l-4"
             style={{
@@ -198,12 +202,12 @@ export default function EntryDetail() {
               style={{ color: "var(--evenda-text)" }}
               data-testid="entry-example"
             >
-              "{entry.example}"
+              "{example}"
             </p>
           </section>
         ) : null}
 
-        {isAdmin ? (
+        {isAdmin && supportsImage ? (
           <AdminImageManager entry={entry} onUpdated={(e) => setEntry(e)} />
         ) : null}
 
