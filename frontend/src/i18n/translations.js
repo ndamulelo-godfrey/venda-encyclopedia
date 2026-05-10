@@ -115,6 +115,37 @@ export const translations = {
     uploading: "Uploading…",
     confirm_remove_image: "Remove this image? Only an admin can re-add it.",
 
+    // Audio recorder
+    audio_record: "Record audio",
+    audio_stop: "Stop",
+    audio_choose_file: "Choose audio file",
+    audio_save: "Save audio",
+    audio_attached: "Audio attached to this entry.",
+    audio_unsupported:
+      "Your browser doesn't support audio recording. Use 'Choose audio file' instead.",
+
+    // Admin dashboard
+    admin_dashboard: "Admin Dashboard",
+    admin_intro: "Edit, delete, and manage every entry in the encyclopedia.",
+    admin_new_entry: "+ New entry",
+    admin_search_placeholder: "Search by term, translation or contributor…",
+    admin_only: "Admins only",
+    admin_only_body:
+      "This area is reserved for the Evenda admin. Sign in with an admin account to continue.",
+    edit_entry: "Edit entry",
+    save_changes: "Save changes",
+    edit: "Edit",
+    delete: "Delete",
+    col_term: "Term",
+    col_translation: "Translation",
+    col_category: "Category",
+    col_contributor: "Contributor",
+    col_created: "Created",
+    col_actions: "Actions",
+    confirm_delete_title: "Delete this entry?",
+    confirm_delete_body:
+      "'{term}' will be permanently removed from the encyclopedia. This cannot be undone.",
+
     // Categories
     category_all: "All",
     category_words: "Words",
@@ -234,6 +265,38 @@ export const translations = {
     uploading: "Hu khou hwaliwa…",
     confirm_remove_image:
       "Bvisani tshifanyiso? Ndi admin fhedzi a nga tshi vhuyelelaho.",
+
+    // Audio recorder
+    audio_record: "Rikhoda mubvumelo",
+    audio_stop: "Ima",
+    audio_choose_file: "Khethani fayela",
+    audio_save: "Vhulunga mubvumelo",
+    audio_attached: "Mubvumelo wo nambateliswa kha tshiengedzwa.",
+    audio_unsupported:
+      "Brawuza yanu a i tikedzi u rikhoda. Shumisani 'Khethani fayela'.",
+
+    // Admin dashboard
+    admin_dashboard: "Bodo ya Admin",
+    admin_intro: "Lulamisani, bvisani na langula zwiengedzwa zwoṱhe.",
+    admin_new_entry: "+ Tshiengedzwa tshiswa",
+    admin_search_placeholder:
+      "Toda nga ipfi, ṱalutshedzo kana muengedzi…",
+    admin_only: "Vha Admin fhedzi",
+    admin_only_body:
+      "Fhethu hu vhuelelwa nga admin wa Evenda. Dzhenani nga akhaunthu ya admin.",
+    edit_entry: "Lulamisa tshiengedzwa",
+    save_changes: "Vhulunga tshanduko",
+    edit: "Lulamisa",
+    delete: "Bvisa",
+    col_term: "Ipfi",
+    col_translation: "Ṱalutshedzo",
+    col_category: "Tshigwada",
+    col_contributor: "Muengedzi",
+    col_created: "Ḽa u vumbwa",
+    col_actions: "Mishumo",
+    confirm_delete_title: "Bvisani tshiengedzwa itshi?",
+    confirm_delete_body:
+      "'{term}' tshi ḓo bvisiwa kha bugu zwa tshiḓuvha tshoṱhe. Tshi nga si vhuyeleli.",
 
     // Categories
     category_all: "Zwoṱhe",

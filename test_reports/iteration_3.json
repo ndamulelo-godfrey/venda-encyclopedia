@@ -1,0 +1,51 @@
+{
+  "summary": "Iteration 3 — Admin moderation (PATCH/DELETE /api/entries/{id}) + audio upload (POST /api/upload-audio) + Admin Dashboard UI + EntryEditDialog + AudioRecorder. Backend: 33/33 pytest cases pass (added 14 new for PATCH/DELETE entries and audio upload incl. unauth/non-admin/bad-type/empty/oversize/success+file-fetch round-trips). Frontend: all 8 end-to-end flows pass: unauthed /admin → /login, admin login, nav-admin link visible only for admin, AdminDashboard renders table (20 rows visible) with search + category dropdown, Edit dialog opens with prefilled values and saves PATCH update (row reflects change, restore works), Delete shows confirmation modal then removes the row, Contribute page now shows AudioRecorder with audio-record-start + audio-file-input data-testids and the old plain audio_url URL input is REMOVED, and a freshly-registered contributor sees the admin-denied gate on /admin and has no nav-admin in header.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PATCH /api/entries/{id}", "issue": "EntryCreate Pydantic model is reused for PATCH; all required fields (term/translation/category/meaning) must be sent — no partial-update semantics. Acceptable for an admin-only full-form-edit UI but does not match true PATCH semantics; consider EntryUpdate model with Optional fields or rename route to PUT."},
+      {"endpoint": "POST /api/upload-audio", "issue": "Real Emergent object storage is hit on every run — uploads persist forever (no cleanup endpoint). Same persistent-storage concern flagged in iteration 2."},
+      {"endpoint": "DELETE /api/entries/{id}", "issue": "Returns 200 with {ok:true, deleted:id}. REST convention prefers 204 No Content."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AdminDashboard", "issues": ["Tables on small screens rely on overflow-x-auto with several columns hidden via md:/lg:table-cell — usable but the action buttons get pushed off-screen on narrow phones, requiring horizontal scroll. Consider a card layout below md breakpoint."]},
+      {"screen": "Header (md+ only)", "issues": ["nav-admin link uses hidden md:inline-flex; on screens between sm and md admin has no quick path to /admin from header. Consider md→sm or include in a mobile menu."]},
+      {"screen": "AudioRecorder", "issues": ["Hard-coded English error strings ('Microphone access was denied…', 'Please choose an audio file…', 'Audio must be under 10 MB.') in /app/frontend/src/components/AudioRecorder.jsx — not localised via t()."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional) Localise hard-coded English strings in AudioRecorder.jsx (mic-denied, file-type, max-size) via translations.js + t().",
+    "(Optional) Switch PATCH /api/entries/{id} to a dedicated EntryUpdate model with Optional fields so partial-update PATCH semantics hold; or rename to PUT.",
+    "(Optional) Return 204 No Content from DELETE /api/entries/{id} and DELETE /api/entries/{id}/image to match REST conventions.",
+    "(Carry-over from iter-2) Add cleanup mechanism for TEST_-prefixed entries and uploaded audio/image blobs created during tests.",
+    "(Carry-over) Suppress noisy /api/auth/me 401 console error for unauthenticated visitors.",
+    "(Carry-over) Show lang-toggle and nav-admin on mobile widths."
+  ],
+  "critical_code_review_comments": [
+    "EntryEditDialog uses PATCH but sends a full EntryCreate-shaped payload (all required fields). If any required field is blank in the form (e.g. term cleared by mistake), backend returns 422; the dialog only shows formatApiError but the FastAPI 422 ValidationError payload is a list of dicts — formatApiError handles it but UX could pre-validate.",
+    "AdminDashboard load() fetches with limit:1000 — fine today, but for >1000 entries it silently caps. Add server-side pagination before launch.",
+    "POST /api/upload-audio: response includes public_url built from FRONTEND_URL env. If FRONTEND_URL is unset, returns relative URL — works on same host, breaks for cross-origin frontends. Document.",
+    "AudioRecorder: previewName falls back to 'audio.webm' on upload — when browser MIME is audio/mp4 (Safari) the backend would store .webm extension despite mp4 bytes. Use a better fallback derived from MediaRecorder.mimeType.",
+    "server.py now 636 lines — over the 700 split warning threshold soon. Suggest splitting into routers/auth.py, routers/entries.py, routers/admin.py, routers/uploads.py.",
+    "PATCH /api/entries/{id}: image_url is only persisted if payload.image_url is not None — but EntryCreate defaults it to '' so it is always set, contradicting the conditional. Either remove the if-block or make image_url Optional[str] = None in the model.",
+    "AudioRecorder mr.onstop hard-codes new Blob type='audio/webm' even if recorder produced 'audio/webm;codecs=opus' or future formats. Use mediaRef.current.mimeType to preserve the actual MIME."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (33/33)", "frontend": "100% (8/8 e2e flows)"},
+  "test_credentials": "admin@evenda.org / Admin@Evenda123 — verified working. Contributor users created on the fly (TEST_/contrib_/contrib_e2e_ prefix).",
+  "seed_data_creation": "Backend tests created/deleted multiple TEST_patch_*, TEST_del_*, TEST_term_* entries (all cleaned up by their own tests). 1 PNG upload + 1 WAV upload pushed to Emergent object storage (persisted; no cleanup endpoint).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run `cd /app/backend && REACT_APP_BACKEND_URL=$(grep REACT_APP_BACKEND_URL /app/frontend/.env | cut -d= -f2) pytest tests/backend_test.py -v` for full backend regression (33 tests). Frontend testids added in this iteration: admin-denied, admin-dashboard, admin-heading, admin-new-entry, admin-search, admin-category-select, admin-table, admin-row-{id}, admin-edit-{id}, admin-delete-{id}, admin-delete-modal, admin-delete-cancel, admin-delete-confirm, edit-dialog, edit-dialog-backdrop, edit-dialog-close, edit-dialog-form, edit-input-term/translation/pronunciation/region/audio_url/category/meaning/example, edit-cancel, edit-save, edit-error, nav-admin (header), audio-recorder, audio-record-start, audio-record-stop, audio-file-input, audio-preview, audio-preview-play, audio-discard, audio-upload, audio-saved, audio-error. AudioRecorder mic flow requires MediaRecorder + permission and is NOT testable in headless Chromium — only the UI presence was verified; file-picker upload via setInputFiles also works programmatically.",
+  "rca of the issue": "N/A — no failing tests."
+}

@@ -63,6 +63,15 @@ export default function Header() {
           </Link>
           {user && user !== false ? (
             <>
+              {user.role === "admin" ? (
+                <Link
+                  to="/admin"
+                  className="hidden md:inline-flex text-sm px-3 py-2 rounded-full transition-colors hover:bg-[var(--evenda-bg-2)]"
+                  data-testid="nav-admin"
+                >
+                  {t("admin_dashboard")}
+                </Link>
+              ) : null}
               <Button
                 onClick={() => navigate("/contribute")}
                 className="rounded-full text-white"

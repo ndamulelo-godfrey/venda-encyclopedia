@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import AudioRecorder from "../components/AudioRecorder";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../i18n/I18nContext";
 import { api, formatApiError, CATEGORIES, categoryLabelKey } from "../lib/api";
@@ -79,7 +80,6 @@ export default function Contribute() {
     { key: "translation", label: t("field_translation"), placeholder: "Baobab tree", required: true },
     { key: "pronunciation", label: t("field_pronunciation"), placeholder: "moo-vhoo-yoo" },
     { key: "region", label: t("field_region"), placeholder: "Vhembe" },
-    { key: "audio_url", label: t("field_audio_url"), placeholder: "https://…/word.mp3" },
   ];
 
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -207,6 +207,19 @@ export default function Contribute() {
               data-testid="contribute-input-example"
             />
           </label>
+
+          <div>
+            <span
+              className="block text-[11px] tracking-[0.22em] uppercase mb-3"
+              style={{ color: "var(--evenda-muted)" }}
+            >
+              {t("field_pronunciation")} · {t("audio_record")}
+            </span>
+            <AudioRecorder
+              value={form.audio_url}
+              onUploaded={(url) => update("audio_url", url)}
+            />
+          </div>
 
           {error ? (
             <p className="text-sm text-red-600" data-testid="contribute-error">

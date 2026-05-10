@@ -8,6 +8,7 @@ import EntryDetail from "./pages/EntryDetail";
 import Contribute from "./pages/Contribute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/contribute" element={<Contribute />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </AuthProvider>
         </I18nProvider>

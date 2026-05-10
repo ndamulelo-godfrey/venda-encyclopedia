@@ -34,7 +34,12 @@ ALLOWED_CATEGORIES = [
     "places", "people", "customs", "folklore",
 ]
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+ALLOWED_AUDIO_TYPES = {
+    "audio/webm", "audio/ogg", "audio/mpeg", "audio/mp3",
+    "audio/wav", "audio/x-wav", "audio/mp4", "audio/m4a",
+}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 MB
+MAX_AUDIO_BYTES = 10 * 1024 * 1024  # 10 MB
 STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
 APP_STORAGE_NAME = os.environ.get("APP_STORAGE_NAME", "evenda")
 _storage_key: Optional[str] = None
@@ -342,6 +347,45 @@ async def get_entry(entry_id: str):
     return Entry(**d)
 
 
+@api_router.patch("/entries/{entry_id}", response_model=Entry)
+async def update_entry(entry_id: str, payload: EntryCreate, admin: dict = Depends(require_admin)):
+    """Admin-only: edit any entry. (Contributors cannot edit through this endpoint.)"""
+    if payload.category not in ALLOWED_CATEGORIES:
+        raise HTTPException(status_code=400, detail="Invalid category")
+    update_doc = {
+        "term": payload.term.strip(),
+        "translation": payload.translation.strip(),
+        "pronunciation": (payload.pronunciation or "").strip(),
+        "category": payload.category,
+        "meaning": payload.meaning.strip(),
+        "example": (payload.example or "").strip(),
+        "region": (payload.region or "").strip(),
+        "audio_url": (payload.audio_url or "").strip(),
+    }
+    if payload.image_url is not None:
+        update_doc["image_url"] = payload.image_url.strip()
+    res = await db.entries.find_one_and_update(
+        {"id": entry_id},
+        {"$set": update_doc},
+        return_document=True,
+        projection={"_id": 0},
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    if isinstance(res.get("created_at"), str):
+        res["created_at"] = datetime.fromisoformat(res["created_at"])
+    return Entry(**{k: v for k, v in res.items() if k != "contributor_id"})
+
+
+@api_router.delete("/entries/{entry_id}")
+async def delete_entry(entry_id: str, admin: dict = Depends(require_admin)):
+    """Admin-only: delete any entry."""
+    res = await db.entries.delete_one({"id": entry_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return {"ok": True, "deleted": entry_id}
+
+
 @api_router.post("/entries", response_model=Entry, status_code=201)
 async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_user)):
     if payload.category not in ALLOWED_CATEGORIES:
@@ -372,6 +416,46 @@ async def create_entry(payload: EntryCreate, user: dict = Depends(get_current_us
 # ---------- Admin-only image management --------------------------------------
 class ImagePatchPayload(BaseModel):
     image_url: str = Field(min_length=1, max_length=2000)
+
+
+@api_router.post("/upload-audio")
+async def upload_audio(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    """Any authenticated user can upload an audio recording for their entry."""
+    content_type = (file.content_type or "").lower().split(";")[0].strip()
+    if content_type not in ALLOWED_AUDIO_TYPES:
+        raise HTTPException(status_code=400, detail="Only WebM/OGG/MP3/WAV/M4A audio is accepted")
+    data = await file.read()
+    if len(data) > MAX_AUDIO_BYTES:
+        raise HTTPException(status_code=413, detail="Audio must be under 10 MB")
+    if len(data) == 0:
+        raise HTTPException(status_code=400, detail="Empty file")
+    ext = "webm"
+    if "." in (file.filename or ""):
+        ext = file.filename.rsplit(".", 1)[-1].lower()
+    if content_type in ("audio/mpeg", "audio/mp3"):
+        ext = "mp3"
+    elif content_type in ("audio/wav", "audio/x-wav"):
+        ext = "wav"
+    elif content_type in ("audio/mp4", "audio/m4a"):
+        ext = "m4a"
+    elif content_type == "audio/ogg":
+        ext = "ogg"
+    storage_path = f"{APP_STORAGE_NAME}/audio/{uuid.uuid4()}.{ext}"
+    result = storage_put(storage_path, data, content_type)
+    final_path = result.get("path", storage_path)
+    backend_base = os.environ.get("FRONTEND_URL", "").rstrip("/")
+    public_url = f"{backend_base}/api/files/{final_path}" if backend_base else f"/api/files/{final_path}"
+    await db.uploads.insert_one({
+        "id": str(uuid.uuid4()),
+        "storage_path": final_path,
+        "original_filename": file.filename or "audio",
+        "content_type": content_type,
+        "size": len(data),
+        "uploaded_by": user["id"],
+        "is_deleted": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"url": public_url, "path": final_path, "size": len(data), "content_type": content_type}
 
 
 @api_router.post("/admin/upload-image")
