@@ -29,6 +29,15 @@ Build a heritage-preservation website for the Tshivenda language and Venda cultu
 - ✅ Browser pronunciation playback via `audio_url` or `speechSynthesis` fallback.
 - ✅ 18/18 backend tests + 9/9 frontend flows passing in testing agent.
 
+## What's Been Implemented (2026-02-10 update — i18n + admin images)
+- ✅ Bilingual UI (Tshivenda default + English) with header toggle, persisted in localStorage. Hand-editable translations file at `/app/frontend/src/i18n/translations.js`.
+- ✅ Admin-only image management: `POST /api/admin/upload-image` (multipart, JPG/PNG/WebP/GIF ≤5 MB), `PATCH /api/entries/{id}/image`, `DELETE /api/entries/{id}/image`.
+- ✅ Public file proxy `GET /api/files/{path:path}` serves images via Emergent object storage with `Cache-Control: public, max-age=86400`.
+- ✅ AdminImageManager component on entry detail (admin only): tabs for "Upload" and "Paste URL", success/error states, remove with confirmation.
+- ✅ Contribute form no longer accepts image_url for non-admin (server strips it on POST + UI shows admin-only notice).
+- ✅ EntryCard shows image at top of card with category badge overlay when image_url is set; broken-image URLs gracefully fall back to no-image layout via onError.
+- ✅ 32/32 backend tests + 11/11 frontend flows passing in testing agent.
+
 ## Prioritised Backlog
 - **P1**: Audio recording in the contribute form (currently URL-only).
 - **P1**: Admin moderation page (approve / unpublish entries).

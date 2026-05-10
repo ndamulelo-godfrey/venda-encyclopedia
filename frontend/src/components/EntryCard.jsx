@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { CATEGORY_COLORS, categoryLabelKey } from "../lib/api";
 import { useI18n } from "../i18n/I18nContext";
 
 export default function EntryCard({ entry, index = 0 }) {
   const { t } = useI18n();
+  const [imgFailed, setImgFailed] = useState(false);
   const color = CATEGORY_COLORS[entry.category] || "#2B2927";
-  const hasImage = !!entry.image_url;
+  const hasImage = !!entry.image_url && !imgFailed;
 
   return (
     <Link
@@ -26,6 +28,7 @@ export default function EntryCard({ entry, index = 0 }) {
             src={entry.image_url}
             alt={entry.term}
             loading="lazy"
+            onError={() => setImgFailed(true)}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             data-testid={`entry-card-image-${entry.id}`}
           />

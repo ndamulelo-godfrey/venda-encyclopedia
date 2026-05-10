@@ -43,7 +43,7 @@ export default function Header() {
           <button
             onClick={toggle}
             title={t("language")}
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] px-3 py-2 rounded-full border transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] px-3 py-2 rounded-full border transition-colors"
             style={{
               borderColor: "var(--evenda-border)",
               color: "var(--evenda-text-2)",
