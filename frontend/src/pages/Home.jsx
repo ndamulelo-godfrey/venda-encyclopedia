@@ -110,17 +110,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <footer
-        className="border-t py-6 text-center text-xs"
-        style={{
-          borderColor: "var(--evenda-border)",
-          color: "var(--evenda-muted)",
-        }}
-        data-testid="site-footer"
-      >
-        © {new Date().getFullYear()} Evenda — {t("footer_tagline")}
-      </footer>
     </div>
   );
 }
