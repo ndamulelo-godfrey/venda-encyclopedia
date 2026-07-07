@@ -45,14 +45,6 @@ export default function EntryCard({ entry, index = 0 }) {
             >
               {t(categoryLabelKey(entry.category))}
             </span>
-            {entry.region ? (
-              <span
-                className="text-[11px] tracking-wide truncate"
-                style={{ color: "var(--evenda-muted)" }}
-              >
-                {entry.region}
-              </span>
-            ) : null}
           </div>
           <h3
             className="font-serif-display text-3xl lg:text-5xl leading-[1.05] mb-3 group-hover:text-[var(--evenda-primary)] transition-colors"
@@ -126,14 +118,6 @@ export default function EntryCard({ entry, index = 0 }) {
           >
             {t(categoryLabelKey(entry.category))}
           </span>
-          {entry.region ? (
-            <span
-              className="text-[11px] tracking-wide truncate ml-3"
-              style={{ color: "var(--evenda-muted)" }}
-            >
-              {entry.region}
-            </span>
-          ) : null}
         </div>
         <h3
           className="font-serif-display text-3xl lg:text-4xl leading-tight mb-2 group-hover:text-[var(--evenda-primary)] transition-colors"
